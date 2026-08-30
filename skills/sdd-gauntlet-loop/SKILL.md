@@ -106,10 +106,12 @@ Details: `references/phase-4-integrate-archive.md`.
 
 ## Stop conditions
 
+**The brake is the critic being impressed, not the counter running out.** A node finishes when a clean-context critic, asked what would make the work better, cannot name anything. Code with no defects is merely adequate — it scores 8, below the bar, deliberately. Everything else below is a safety valve for when the impressed state never arrives; reaching one is an escalation, not a success.
+
 Stop and hand back to the human when any of these is true:
 
-- All verifiers exit 0, the final critic scores at or above the bar, and every task in `tasks.md` is checked. **(success)**
-- A node hits its iteration cap, or two consecutive rounds produce no score improvement. **(stall)**
+- All verifiers exit 0, every task in `tasks.md` is checked, and the final critic scores at or above the bar **and can name nothing that would improve the work**. **(success)**
+- A node hits its iteration cap, or two consecutive rounds produce no score improvement. **(stall — a safety valve, not a finish)**
 - The work would require an action listed as forbidden in `BOUNDARIES` — schema drops, deploys, deleting data, rewriting history, touching credentials. **(boundary)**
 - The spec turns out to be wrong. Do not patch around a bad spec: stop, say which assumption broke, and go back to Phase 1.
 
@@ -121,4 +123,5 @@ Stop and hand back to the human when any of these is true:
 - Running a wave with nodes that write the same file.
 - Loop state kept in the conversation instead of `progress.md`.
 - "Almost passing" being treated as passing. The bar is the bar.
+- **Treating "no defects found" as "impressive".** They are different questions, and only the second one ends the loop.
 - Committing secrets, keys, or `.env` contents — never, under any framing.

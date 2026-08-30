@@ -44,6 +44,21 @@ Commands that must exit 0. If it has no exit code, it belongs in the rubric, not
 Scored 0–10 by a clean-context critic that did not write the code. Bar: **8.5**.
 Every dimension must clear the bar; a high average does not rescue a low one.
 
+**The scale is anchored, and 8 is the default for work with nothing wrong with it:**
+
+| Score | Meaning |
+|---|---|
+| 10 | the critic would teach the reference standard using this, and can name no change that would improve it |
+| 9 | the critic would approve it with no comment |
+| 8 | the critic would approve it and leave one comment |
+| 7 | the critic would ask for changes first |
+| ≤6 | something is wrong, not merely improvable |
+
+A node is finished when the critic **cannot name what would make it better** —
+not when it stops finding defects. "Nothing broken" is an 8, and 8 is below the
+bar. The counters under BOUNDARIES are safety valves for when that never
+happens; hitting one is an escalation, not a finish.
+
 | Dimension | What earns a low score |
 |---|---|
 | Correctness | the objective is not actually met, or an edge case in `design.md` is unhandled |

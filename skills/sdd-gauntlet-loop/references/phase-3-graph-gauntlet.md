@@ -126,7 +126,7 @@ while iteration <= max_iterations:
     verdict = critic(diff)
     append_to_progress(wave, node, iteration, verdict)
 
-    if verdict.pass and all_verifiers_exit_0:
+    if verdict.pass and all_verifiers_exit_0 and verdict.nothing_left_to_improve:
         mark task done in tasks.md
         break
 
@@ -134,13 +134,19 @@ while iteration <= max_iterations:
         escalate("stalled", verdict.gaps)
         break
 
-    builder(gaps=verdict.gaps)     # gaps passed through verbatim
+    # gaps verbatim on a FAIL; on a PASS that still named improvements,
+    # send TO REACH 10 instead — the node is good and not yet finished
+    builder(gaps=verdict.gaps or verdict.to_reach_10)
     iteration += 1
 else:
     escalate("iteration cap reached", verdict.gaps)
 ```
 
-Pass the critic's gaps to the builder **verbatim**. Softening them — "the critic had some minor notes" — is how a loop converges on mediocrity.
+`verdict.nothing_left_to_improve` is the brake. It is true only when the critic, asked what change would make the work a 10, answers that it cannot name one. A `PASS` whose `TO REACH 10` section is non-empty is a node that works and is not done: send the named improvements back and run another iteration. The counters below it are safety valves for when that state is never reached, and hitting one is an escalation, not a finish.
+
+This is what makes the loop cost more than a single review pass, and it is the only reason the loop exists. A pipeline that stops at the first clean verdict has bought a code review, not a gauntlet.
+
+Pass the critic's gaps to the builder **verbatim**. Softening them — "the critic had some minor notes" — is how a loop converges on mediocrity. The same holds for `TO REACH 10`: relay it as written, and do not editorialize that it was "only polish".
 
 ## The stall protocol
 

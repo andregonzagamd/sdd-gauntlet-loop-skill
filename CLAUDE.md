@@ -60,7 +60,9 @@ commands/                             # uma fase por comando, pra rodar com apro
 5. **Ondas de paralelismo exigem duas condições:** independência de dependências **e** conjuntos
    de `files:` disjuntos. Conflito → worktrees separados ou ondas consecutivas.
 6. **Fronteiras padrão:** 5 iterações por nó, 4 ondas, parada por estagnação após 2 rodadas sem
-   melhora de nota, barra do crítico 8.5/10.
+   melhora de nota, barra do crítico 8.5/10 — numa escala **ancorada**, onde código sem defeito
+   vale 8 e só passa quem está acima disso. Ver a decisão #10; a barra sem as âncoras não
+   segura nada.
 7. **`progress.md` é append-only.** É o que permite uma sessão nova retomar o loop sem repetir
    o que já falhou.
 8. **`install.sh` é idempotente** e nunca sobrescreve `AGENTS.md`, `contract.md` ou `progress.md`
@@ -68,7 +70,19 @@ commands/                             # uma fase por comando, pra rodar com apro
 9. **Os agentes carregam o frontmatter dos dois mundos ao mesmo tempo.** `readonly: true` pro
    Cursor e `tools:` / `disallowedTools:` pro Claude Code, no mesmo arquivo. Cada ferramenta
    ignora o campo que não conhece. Não troque um pelo outro — some a garantia numa delas.
-10. **O pipeline inteiro e as fases avulsas coexistem.** `/sdd-gauntlet-loop` roda ponta a ponta;
+10. **O freio do loop é o crítico ficar impressionado — não o contador.** Isto é do André, e é
+    o coração da técnica: itera-se até o crítico, perguntado o que melhoraria o trabalho, não
+    conseguir nomear nada. Teto de iterações e regra de estagnação são **válvulas de segurança**
+    pra quando esse estado nunca chega; bater numa delas é escalação, não conclusão.
+
+    A rodada de 30/08/2026 mostrou que isso estava no texto mas não implementado. As notas
+    saíam bimodais — defeito derruba pra 5, ausência de defeito sobe pra 9–10 — então a barra
+    de 8.5 nunca decidiu nada e todo nó parava na primeira passada limpa. Isso é "iterar até
+    ninguém achar bug", que é bem mais baixo. Corrigido com três peças que andam juntas:
+    escala ancorada onde **código sem defeito vale 8** (abaixo da barra, de propósito), a
+    obrigação `TO REACH 10:` no retorno do crítico, e a saída do loop condicionada a ele não
+    conseguir nomear mais nada. **Não desfaça uma sem as outras** — sozinhas elas não mordem.
+11. **O pipeline inteiro e as fases avulsas coexistem.** `/sdd-gauntlet-loop` roda ponta a ponta;
     `commands/` tem uma fase por comando pra quando você quer aprovar no meio. Os comandos são
     finos de propósito: eles apontam pro `SKILL.md` e pra `references/` correspondente em vez de
     reexplicar a fase. Regra dura — **nenhuma regra da pipeline mora só num comando.**

@@ -49,9 +49,44 @@ output. A verifier you did not run is not a verifier that passed.
 **3. Score each rubric dimension 0–10** against the contract's named reference
 standard, with one line of evidence per score, pointing at `file:line`.
 
-**4. Decide.** Every dimension must clear the bar. A strong average does not
+You are answering **two different questions**, and you must not let the first
+one answer the second:
+
+- *Is anything wrong?* — defects against the contract. Finding none is not a
+  score, it is the absence of a reason to fail.
+- *Is this excellent?* — held against the named reference standard, how good is
+  it? This question is still open after the first one comes back clean, and it
+  is the one the score is for.
+
+Use these anchors. They are the whole scale; do not invent a private one:
+
+| Score | What it means |
+|---|---|
+| **10** | You would use this as the example when teaching someone the reference standard. You cannot name a change that would improve it. |
+| **9** | You would approve it with no comment at all. |
+| **8** | You would approve it, and leave one comment. |
+| **7** | You would ask for changes before approving. |
+| **≤6** | Something is wrong, not merely improvable. |
+
+**Code with no defects lands at 8.** That is the default for competent work that
+does its job, and 8 is below the bar. Nine and ten are not where you go when you
+have nothing bad to say — they are where you go when the work is genuinely
+better than competent, and you can say why.
+
+**4. Name what is missing, even when you are passing it.** For every dimension
+you did not score 10, write the one specific change that would make it a 10. If
+you can name it, you are not yet impressed, and the loop is not finished — that
+is the point of the loop. If you genuinely cannot name anything, say so
+explicitly; that sentence is what a PASS at this bar means.
+
+**5. Decide.** Every dimension must clear the bar. A strong average does not
 rescue a weak dimension. "Mostly works" is a FAIL. A claim you could not
 verify is unverified, and unverified is not a pass.
+
+The loop exists to iterate toward impressive, not to certify adequate. Passing
+something the moment it stops being broken is the failure this whole pipeline
+was built to prevent — it is the same failure as a builder grading itself, just
+one seat further away.
 
 ## Tone
 
@@ -69,6 +104,9 @@ VERIFIERS:
 GAPS:
   1. <what is wrong> (<file:line>) — <what would make it pass>
   2. ...
+TO REACH 10:
+  <dimension>: <the one change that would make it a 10>
+  — or: "nothing; I cannot name a change that would improve this"
 NOTES:
   - <true, and not a defect against the contract>
 ```

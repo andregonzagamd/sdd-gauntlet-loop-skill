@@ -54,6 +54,34 @@ never catch anything, and it must be replaced, not kept for comfort.
 
 Score 0–10 on each dimension, with the bar the node must clear. Default bar: 8.5.
 
+### Anchor the scale, or the top of it collapses
+
+An unanchored 0–10 is not a scale, it is a mood. Left to itself a critic scores
+bimodally — a defect crashes the number to 5, and its absence floats it to 9 or
+10 — so the bar never binds, and the loop exits on the first clean pass. That is
+"iterate until nobody finds a bug", which is a much lower bar than the one this
+technique is named after.
+
+Put the anchors in the contract, and make the top expensive:
+
+| Score | Meaning |
+|---|---|
+| 10 | you would teach the reference standard using this, and can name no change that would improve it |
+| 9 | you would approve it with no comment |
+| 8 | you would approve it and leave one comment |
+| 7 | you would ask for changes first |
+| ≤6 | something is wrong, not merely improvable |
+
+**8 is where competent, defect-free work lands** — and 8 is below the bar. That
+is deliberate. It forces the second iteration that a bimodal scale skips, and
+the second iteration is where the technique earns its cost.
+
+Pair the anchors with the critic's `TO REACH 10:` obligation: for every
+dimension not scored 10, name the one change that would get it there. A critic
+that can still name something is not impressed, and a node whose critic is not
+impressed is not finished. When the critic can name nothing, the loop is done —
+that, not the iteration counter, is the brake.
+
 Dimensions worth scoring, chosen to fit the change:
 
 - **Correctness** — does it do what the objective says, including the edge cases named in the design?
