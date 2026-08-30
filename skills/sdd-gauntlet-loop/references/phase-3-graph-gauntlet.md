@@ -64,11 +64,12 @@ VERIFIERS: <the commands from the contract>
 
 Do this in order:
 1. Run every verifier. Record the exact exit code and output.
-2. Read the diff for what the verifiers cannot catch: stubs, TODOs,
+2. Probe the implementation beyond its own tests. <specific probes>
+3. Read the diff for what the verifiers cannot catch: stubs, TODOs,
    hardcoded values, swallowed errors, dead paths, tests that assert
    nothing, mocks that mock away the thing under test.
-3. Score each rubric dimension 0-10 against the named reference standard.
-4. Verdict.
+4. Score each rubric dimension 0-10 against the named reference standard.
+5. Verdict.
 
 You are not here to be encouraging. A change that "mostly works" fails.
 If you cannot verify a claim, it is unverified, which is not a pass.
@@ -77,7 +78,43 @@ Return exactly:
 VERDICT: PASS | FAIL
 SCORES:  <dimension>: <n>/10 — <one line of evidence, with file:line>
 GAPS:    <numbered, specific, each pointing at file:line and what is wrong>
+NOTES:   <true, not a defect; omit the heading when there are none>
 ```
+
+### Step 2 is the one that earns the loop
+
+**The tests were written by the same agent that wrote the code, so they are
+evidence of intent, not of correctness.** A verifier only proves the code agrees
+with the test; it never proves the test asserts the right thing. A green suite is
+where a bad node hides.
+
+So `<specific probes>` is not boilerplate — write it fresh for each node, naming
+inputs the node's own tests do not cover, drawn from the design:
+
+- the values the design says must be **rejected** that the task's `done when`
+  list happens not to enumerate
+- boundary values where a naive implementation silently loses a sign, a leading
+  zero, or precision
+- a round-trip, where the node has two functions that should invert each other
+- **the source of truth for the test's own data.** If the task says "the rows
+  from `fixtures/x.csv`", tell the critic to open the fixture and compare the
+  test's data against it field by field. A test whose data merely *aggregates* to
+  the right answer while its individual values are invented is the single
+  highest-value catch in this whole phase, and no exit code will ever find it.
+
+Tell the critic explicitly where it may write scratch files — **outside the
+repository**. It has a shell and no edit tool; without a named scratch location
+some critics will reach for the repo.
+
+### Tell the critic what it must not re-review
+
+In wave 2 and later, name the nodes that already passed and say plainly: read
+them to understand what this node calls, do not re-score them. Otherwise a
+critic re-litigates a closed node, and a node can be failed twice for the same
+thing by two different critics.
+
+Say the same about work in flight: if another node is being built in parallel,
+its files may be absent or half-written, and that is not this node's gap.
 
 Critics are **read-only**. A critic that fixes what it found has stopped being an independent check and has started grading its own work.
 

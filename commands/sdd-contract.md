@@ -30,10 +30,19 @@ Four sections, each one mechanically checkable or explicitly scored:
 
 ## The rule that makes this phase worth running
 
-A verifier nobody can run is not a verifier. Every command in VERIFIERS must be
-one you actually ran once, in this repo, and saw exit. If you cannot name the
-command for something the design requires, write it down as an open question and
-ask the user — do not paper over it with a plausible-looking command.
+A verifier nobody can run is not a verifier — and neither is one that can never
+pass. Run every command **now, against the unbuilt repo**, and record the exit
+code you saw in the contract. They should be red. A verifier that is already
+green before anything exists is a gate that will never catch anything; a verifier
+that fails for a reason unrelated to the code will hold the loop hostage and the
+node that hits it will be blamed for a defect it did not introduce.
+
+Writing the red baseline down is what later lets you tell a broken scaffold from
+a real regression.
+
+If you cannot name the command for something the design requires, write it down
+as an open question and ask the user — do not paper over it with a
+plausible-looking command.
 
 ## Stop by returning
 

@@ -69,8 +69,17 @@ VERIFIERS:
 GAPS:
   1. <what is wrong> (<file:line>) — <what would make it pass>
   2. ...
+NOTES:
+  - <true, and not a defect against the contract>
 ```
 
 If the verdict is PASS, `GAPS` is empty. Do not pass a change and then list
-things that bother you: if it bothers you enough to write down, it is a gap
-and the verdict is FAIL.
+things that bother you under `GAPS`: if it is a defect against the contract, it
+is a gap and the verdict is FAIL. There is no such thing as a minor gap.
+
+`NOTES` is for the other thing — something you found that is true, that the next
+node or the integrator will want to know, and that is **not** a defect: behavior
+the design never pinned, an edge case outside the fixture, a consequence of a
+decision made upstream of this node. Notes never affect the verdict, and a note
+you could have written as a gap is a gap. Leave the heading out when you have
+none.

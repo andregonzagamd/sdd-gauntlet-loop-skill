@@ -138,14 +138,67 @@ Fechado em 30/08/2026:
       `/sdd-archive`, distribuídos pelo `install.sh`
 - [x] dogfood: `.claude/` deste repo aponta por junction pra `skills/`, `agents/` e `commands/`
 
+- [x] pipeline rodada ponta a ponta num projeto real — ver a seção abaixo
+
 Falta:
 
 - [ ] push (o `git init` e o primeiro commit já foram feitos; o nome do repositório remoto
-      ainda não foi definido)
-- [ ] rodar a pipeline num projeto real e calibrar a rubrica do crítico com o que aparecer.
-      **É o único item que ainda pode mudar decisões de design** — tudo acima é estrutura,
-      e estrutura não validada por uso é palpite arrumado.
+      ainda não foi definido). André decidiu **não publicar antes de validar** — a validação
+      já aconteceu, a decisão do nome não.
 - [ ] conferir e apagar `_to_delete/_bundle.zip` (André pediu pra segurar até olhar o conteúdo)
+
+## A primeira rodada real — 30/08/2026
+
+Alvo: `ledger`, um CLI Node de ~430 linhas (parser de CSV, dinheiro em centavos inteiros,
+agregação de relatório, entrada de linha de comando). Escolhido porque tem verificador que sai
+com exit code de verdade — `node --test` embutido, sem instalar nada. **Os três verificadores
+saíam 1 antes de qualquer código**, então o verde depois é sinal, não suíte vazia passando.
+
+Resultado: 4 nós em 3 ondas, 5 vereditos de crítico, 1 reprovação legítima, 26 testes,
+tudo verde, arquivada. `progress.md` com 21 eventos.
+
+**O que a rodada provou que o frontmatter sozinho não provava:**
+
+- O crítico é read-only *de fato*: rodou, sondou, e não escreveu um byte no repositório —
+  conferido por `git status` e mtime, não pela palavra dele.
+- O builder do T4 precisou de `package.json` (que estava na lista "nunca editar") pra passar
+  o próprio verificador, e **parou e escalou em vez de editar o próprio exame**. Esse é o
+  comportamento mais difícil de arrancar de um agente e veio sem insistência.
+- O integrador não achou costura pra consertar e **disse isso**, com evidência dos dois lados
+  de cada interface, em vez de inventar ajuste cosmético pra parecer útil.
+
+**A reprovação que justifica a pipeline inteira:** o T3 entregou `report.js` correto, 3 testes
+verdes, exit 0 — e um comentário afirmando que os dados do teste vinham do fixture. Vinham não:
+cinco das seis linhas tinham data e descrição inventadas, batendo só em categoria e valor, o
+suficiente pra somar certo por coincidência. Nenhum exit code acharia isso. Achou um agente com
+contexto limpo, sem participação na obra, mandado explicitamente a comparar linha a linha com o
+fixture. Corrigido em 1 iteração.
+
+### Calibrações aplicadas (não desfaça sem rodar de novo)
+
+1. **`NOTES:` no formato de retorno do crítico.** A regra "se incomoda o bastante pra escrever,
+   é gap e reprova" era absoluta demais: os críticos achavam coisas verdadeiras que não eram
+   defeito e não tinham onde pôr — o primeiro contrabandeou uma pra dentro de `GAPS` rotulada
+   "informational". Com a seção separada, saíram 3 observações úteis sem afrouxar veredito
+   nenhum.
+2. **O prompt do crítico tem que mandar sondar além dos testes do builder,** com sondas
+   nomeadas por nó. Teste escrito por quem escreveu o código é evidência de intenção, não de
+   correção. A fraude do T3 só apareceu porque o dispatch mandou abrir o fixture e comparar
+   campo a campo.
+3. **Verificador precisa de baseline vermelha registrada.** "Comando com exit code" não basta —
+   o `test` do meu `package.json` era `node --test test/`, que quebra neste Node/Windows e
+   nunca poderia passar. Rodar cada verificador antes de escrever o contrato, e anotar que
+   deu vermelho, é o que separa scaffold quebrado de regressão de builder.
+4. **Rúbrica proíbe comportamento, nunca token.** A linha "qualquer `* 100` é FAIL automático"
+   quase produziu um veredito errado: `money.js` faz `Number(whole) * 100 + Number(fraction)`,
+   que é aritmética inteira sobre substrings já separadas. Escreva a propriedade que deve valer
+   e deixe o crítico julgar — foi pra isso que você o despachou.
+
+### Atrito conhecido, ainda não resolvido
+
+A skill assume que o diretório de trabalho **é** o repositório alvo. Rodar contra outra pasta
+exigiu injetar o caminho absoluto em todo prompt de dispatch, um por um. Se isso for virar
+rotina, vale um parâmetro de alvo explícito na Fase 0 que os dispatches herdem.
 
 ## Referências
 

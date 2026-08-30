@@ -26,6 +26,28 @@ Bad:   "code should be clean"
 
 If a requirement genuinely cannot be turned into a command — visual design, copy tone, API ergonomics — it does not go in VERIFIERS. It goes in the CRITIC RUBRIC with a named reference standard to compare against, so the critic has something concrete to hold it next to.
 
+### Run every verifier before you write it down, and record that it was red
+
+"A command with an exit code" is not a high enough bar. A command that exits 1 no
+matter what the code does is also a command with an exit code, and it will hold
+the whole loop hostage: builders will keep failing a gate that was never theirs
+to pass, and the node that finally hits it will be the one blamed.
+
+So before a command goes into VERIFIERS, run it **now, against the unbuilt
+repo**, and write the exit code you saw into the contract:
+
+```
+All three exited 1 before any work started, so a 0 later is real signal
+and not an empty suite trivially passing.
+```
+
+That line does two jobs. It proves the verifier can discriminate — it is capable
+of failing, so its passing means something. And it dates the baseline, so when a
+verifier turns out to be broken mid-run, you can tell a scaffold defect that was
+always there from a regression a builder introduced. A verifier that is already
+green before anything is built is worse than useless: it is a gate that will
+never catch anything, and it must be replaced, not kept for comfort.
+
 **Tests are written before or alongside the code, by the builder, and are themselves subject to critique.** A critic that finds a test asserting `expect(true).toBe(true)`, a mocked-away core path, or a `skip` added to make the suite green must fail the node regardless of the exit code.
 
 ## Writing the rubric
@@ -42,6 +64,26 @@ Dimensions worth scoring, chosen to fit the change:
 - **Reference comparison** — held next to `<named standard>`, where does it fall short?
 
 Name the reference standard explicitly. "Good UI" is unscoreable; "the density and hierarchy of Linear's issue list" is scoreable.
+
+### Prohibit the behavior, never the token
+
+A rubric line like *"any `* 100` is an automatic FAIL"* reads as admirably strict
+and is a trap. Critics pattern-match on it, and a correct implementation that
+happens to contain those characters — integer arithmetic on two already-split
+integer substrings, say — gets failed for the shape of its source text while a
+genuinely broken one that spells the same bug differently sails through.
+
+Write the rule as the property that must hold, then offer the tokens as a place
+to start looking:
+
+> No floating-point arithmetic is ever performed on a monetary amount. Values are
+> integer cents from the moment they leave the input text until the moment they
+> are formatted for display. `parseFloat`, `Number()` on a whole amount string,
+> `toFixed`, `* 100` and `/ 100` are where this usually goes wrong — judge each
+> occurrence by what it actually operates on, not by the characters.
+
+The same applies to every "automatic FAIL" you are tempted to write. State the
+property; let the critic do the judging. That is what you dispatched it for.
 
 ## Writing boundaries
 
