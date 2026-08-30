@@ -1,0 +1,16 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+
+# Dogfood install. `.claude/` here is junctions/symlinks pointing back at
+# skills/, agents/ and commands/ in this repo, so the skill is live while we
+# develop it. It is a local artifact — recreate it with:
+#   ./install.sh . --agent claude --no-templates
+# Never commit it: a committed copy is a second copy, and two copies diverge.
+.claude/
+.cursor/
+.codex/
+
+# Sobra da entrega anterior, ainda por conferir.
+_to_delete/

@@ -1,0 +1,5 @@
+# Este repositório é lido por agentes em Linux, macOS e Windows.
+# CRLF em install.sh quebra o shebang num shell POSIX, então tudo aqui é LF.
+* text=auto eol=lf
+*.sh text eol=lf
+*.md text eol=lf
