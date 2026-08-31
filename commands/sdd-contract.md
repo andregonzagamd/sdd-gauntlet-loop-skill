@@ -1,6 +1,6 @@
 ---
 name: sdd-contract
-description: Phase 2 only — translate an approved design.md and tasks.md into contract.md at the repo root, with runnable verifiers and a scored rubric. Stops before any building.
+description: Phase 2 only — translate an approved design.md and tasks.md into contract.md at the repo root, with runnable verifiers and a rubric a critic can close. Stops before any building.
 argument-hint: <change-id>
 disable-model-invocation: true
 ---
@@ -17,15 +17,19 @@ Do not invent a spec here to unblock yourself.
 
 ## Produce `contract.md` at the repo root
 
-Four sections, each one mechanically checkable or explicitly scored:
+Four sections. Every requirement in them must be checkable — by a command, or by
+evidence a critic can produce:
 
 - **OBJECTIVE** — the observable outcome in one paragraph. No adjective that
   cannot be measured.
 - **VERIFIERS** — shell commands that must exit 0 (tests, typecheck, lint, build),
   plus any manual check written as a pass/fail statement.
-- **CRITIC RUBRIC** — the dimensions a critic scores, the minimum bar
-  (default 8.5/10) on an anchored scale where defect-free work scores 8, and the
-  named reference standard being compared against.
+- **CRITIC RUBRIC** — the dimensions a critic must close and the named reference
+  standard they are held against. **No score, no bar:** each dimension ends as
+  `GAP` (defect, `file:line`), `IMPROVEMENT` (a change that would alter behavior,
+  failure or verification), or `CLEAR` (the command, probe or comparison proving
+  it — never "I found nothing"). A node is finished only when every dimension is
+  `CLEAR`.
 - **TASK CHECKLIST** — every node tiered `gauntlet` (carries the change's real
   risk; iterates until a critic can name no material improvement) or `review`
   (glue and wiring; done at defect-free, improvements deferred to the

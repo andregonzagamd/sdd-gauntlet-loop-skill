@@ -7,10 +7,15 @@ tried and what failed, and edited history makes it repeat those failures.
 Format:
 
 ```
-<ISO timestamp>  wave=<n>  node=<task>  iter=<n>  <VERDICT>  <score>  <detail>
+<ISO timestamp>  wave=<n>  node=<task>  iter=<n>  <VERDICT>  open=<n>  <detail>
 ```
 
-Verdicts: `PLAN` · `PASS` · `FAIL` · `STALL` · `ESCALATE` · `INTEGRATE` · `ARCHIVE`
+Verdicts: `PLAN` · `PASS-FINISHED` · `PASS-UNFINISHED` · `FAIL` · `STALL` ·
+`ESCALATE` · `BOUNDARY` · `INTEGRATE` · `ARCHIVE`
+
+`open` is the count of `GAP` + `IMPROVEMENT` items the critic left on the node.
+It is the number the stall rule watches: two consecutive rounds where it does not
+fall, or where the same item is still open, is a stall.
 
 ---
 
@@ -33,7 +38,7 @@ Verdicts: `PLAN` · `PASS` · `FAIL` · `STALL` · `ESCALATE` · `INTEGRATE` · 
 
 ## Polish queue
 
-Material improvements a critic named in `TO REACH 10:` on a **review-tier** node
+`IMPROVEMENT` items a critic named on a **review-tier** node
 that passed. The node was done at defect-free; these were banked instead of
 buying each one its own builder round. The integrator applies the whole queue in
 one pass in Phase 4, and the final critic sees this list — so an item that
@@ -62,6 +67,6 @@ Filled at archive time.
 
 - **Built:** [one paragraph]
 - **Verifiers:** [each command and its result]
-- **Final critic:** [score per dimension]
+- **Final critic:** [how each dimension was closed, and the evidence for each `CLEAR`]
 - **Left undone:** [deliberate non-goals, and anything deferred]
 - **Watch first if it breaks:** [where the risk actually lives]

@@ -34,9 +34,9 @@ for this run. You do not see the other nodes and you do not need to.
 
 ## When a critic returns gaps
 
-You get them verbatim, and there are two kinds. **Gaps** mean the node failed:
-something is wrong. **`TO REACH 10` items** mean it passed and is not yet good
-enough — the work runs, and a critic could still name a change that would alter
+You get them verbatim, and there are two kinds. A **`GAP`** means the node
+failed: something is wrong. An **`IMPROVEMENT`** means it passed and is not
+finished — the work runs, and a critic could still name a change that would alter
 how it behaves, fails, or is verified. Treat both the same way: fix exactly what
 they name.
 

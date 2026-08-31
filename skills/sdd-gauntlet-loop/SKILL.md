@@ -71,11 +71,11 @@ Details and templates: `references/phase-1-spec.md`.
 
 ## Phase 2 — Contract
 
-Translate `design.md` + `tasks.md` into `contract.md` at the repo root. It has four sections and each one must be *mechanically checkable or explicitly scored*:
+Translate `design.md` + `tasks.md` into `contract.md` at the repo root. It has four sections, and every requirement in them must be *checkable* — by a command, or by evidence a critic can produce:
 
 - **OBJECTIVE** — the exact observable outcome, one paragraph, no adjectives that can't be measured.
 - **VERIFIERS** — shell commands that must exit 0 (tests, typecheck, lint, build), plus any manual check with a pass/fail statement.
-- **CRITIC RUBRIC** — the dimensions a critic scores, the bar (default 8.5/10, on a scale anchored so defect-free work is an 8), the reference standard being compared against, and each node's tier: `gauntlet` or `review`.
+- **CRITIC RUBRIC** — the dimensions a critic must close, the reference standard they are held against, and each node's tier: `gauntlet` or `review`. There is no score; each dimension ends as `GAP`, `IMPROVEMENT`, or `CLEAR`.
 - **BOUNDARIES** — max iterations per node (default 5), max total waves, forbidden actions, and what forces escalation to the human.
 
 A contract with a verifier nobody can run is not a contract. If you cannot name the command, say so and ask.
@@ -88,9 +88,9 @@ Read `AGENTS.md`, `contract.md`, `progress.md` before every wave — state comes
 
 1. **Build the graph.** Group `tasks.md` into waves. Two tasks belong in the same wave only if they are independent *and* touch disjoint files. Write the wave plan into `progress.md` before dispatching.
 2. **Fan out.** Dispatch one `builder` subagent per node, in parallel across the wave. Each gets: the constitution, the contract, its task, and the files it may touch — nothing else. If two nodes must touch the same file, run them in isolated worktrees or serialize them.
-3. **Run the gauntlet.** For each finished node, dispatch a `harsh-critic` subagent with a clean context. It receives `contract.md` and the diff. It does not receive the builder's narrative. It runs the verifiers, scores against the rubric, and returns `PASS` or `FAIL` with the exact gap and the file/line where it lives.
-4. **Loop, bounded.** `FAIL` returns to that node's builder with the critic's gap verbatim. Re-critique with a *fresh* critic. Stop that node and escalate when: the bar is met, the iteration cap is hit, or the score has not improved for two consecutive rounds.
-5. **Persist.** After every critic verdict, append to `progress.md`: wave, node, iteration, verdict, score, gap, files changed. One line per event, newest last.
+3. **Run the gauntlet.** For each finished node, dispatch a `harsh-critic` subagent with a clean context. It receives `contract.md` and the diff, never the builder's narrative. It runs the verifiers and closes every rubric dimension, each with `file:line` or the evidence behind it.
+4. **Loop, bounded.** Any `GAP` sends the node back to its builder with the items verbatim, re-critiqued by a *fresh* critic. `IMPROVEMENT` on a `gauntlet` node buys another round; on a `review` node it goes to the polish queue and the node is done. Escalate when the iteration cap is hit, or when two consecutive rounds leave the same items open.
+5. **Persist.** After every critic verdict, append to `progress.md`: wave, node, iteration, verdict, open count, items, files changed. One line per event, newest last.
 
 Details, dispatch prompts and the stall protocol: `references/phase-3-graph-gauntlet.md`.
 
@@ -100,7 +100,7 @@ Dispatch the `integrator` subagent once all waves pass individually. It resolves
 
 ## Phase 5 — Archive
 
-When every contract box is checked: move `specs/<change-id>/` to `specs/archive/<change-id>/` (or run `/opsx archive`), leaving the specification as the project's living documentation. Append the closing entry to `progress.md`. Then report to the user: what was built, every verifier's result, the final critic score, and anything the contract deliberately left out.
+When every contract box is checked: move `specs/<change-id>/` to `specs/archive/<change-id>/` (or run `/opsx archive`), leaving the specification as the project's living documentation. Append the closing entry to `progress.md`. Then report to the user: what was built, every verifier's result, how the final critic closed each dimension, and anything the contract deliberately left out.
 
 Details: `references/phase-4-integrate-archive.md`.
 
@@ -108,12 +108,12 @@ Details: `references/phase-4-integrate-archive.md`.
 
 **The brake is the critic being impressed, not the counter running out.** A node finishes when a clean-context critic can name no **material** improvement — nothing that would change behavior, failure, or verification. Naming and taste never hold a node open.
 
-Defect-free work scores 8, below the bar, deliberately. Only `gauntlet`-tier nodes buy the iterations that get past it; `review`-tier nodes finish there and defer the rest to the integrator. The counters below are safety valves; reaching one is an escalation, not a success.
+Defect-free is not finished — it means no `GAP`, with every `IMPROVEMENT` still open. Only `gauntlet`-tier nodes buy the rounds that clear those; `review`-tier nodes stop there and hand theirs to the integrator. The counters below are safety valves; reaching one is an escalation, not a success.
 
 Stop and hand back to the human when any of these is true:
 
-- All verifiers exit 0, every task in `tasks.md` is checked, and the final critic scores at or above the bar **and can name nothing that would improve the work**. **(success)**
-- A node hits its iteration cap, or two consecutive rounds produce no score improvement. **(stall — a safety valve, not a finish)**
+- All verifiers exit 0, every task in `tasks.md` is checked, and the final critic closed **every** dimension `CLEAR`. **(success)**
+- A node hits its iteration cap, or two consecutive rounds leave the same items open. **(stall — a safety valve, not a finish)**
 - The work would require an action listed as forbidden in `BOUNDARIES` — schema drops, deploys, deleting data, rewriting history, touching credentials. **(boundary)**
 - The spec turns out to be wrong. Do not patch around a bad spec: stop, say which assumption broke, and go back to Phase 1.
 

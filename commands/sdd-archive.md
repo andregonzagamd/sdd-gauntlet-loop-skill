@@ -13,7 +13,7 @@ the archive half of it.
 ## Precondition — check it, do not assume it
 
 Every box in `contract.md` is checked: all verifiers exit 0 on the merged result,
-the final whole-change critic scored at or above the bar, and every task in
+the final whole-change critic closed every rubric dimension `CLEAR`, and every task in
 `specs/$ARGUMENTS/tasks.md` is ticked. Re-run the verifiers now rather than
 trusting the last run recorded in `progress.md`; paste their actual output.
 
@@ -27,7 +27,7 @@ no spec.
    if the repo is driven by OpenSpec.
 2. Confirm the archived `design.md` matches what was actually built. If Phase 4
    left drift unresolved, resolve it before the move, not after.
-3. Append the closing entry to `progress.md` — outcome, final score, date.
+3. Append the closing entry to `progress.md` — outcome, how each dimension closed, date.
    `progress.md` is append-only: never rewrite or prune earlier entries, they are
    what lets a future session know what already failed.
 
@@ -35,6 +35,6 @@ no spec.
 
 - what was built, in plain language
 - every verifier and its result, pasted
-- the final critic score per rubric dimension
+- how the final critic closed each rubric dimension, with the evidence behind every `CLEAR`
 - what the contract deliberately left **out of scope**, so nobody assumes it shipped
 - anything the loop escalated and the human still has to decide

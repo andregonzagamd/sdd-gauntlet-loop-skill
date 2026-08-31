@@ -52,36 +52,57 @@ never catch anything, and it must be replaced, not kept for comfort.
 
 ## Writing the rubric
 
-Score 0–10 on each dimension, with the bar the node must clear. Default bar: 8.5.
+**There is no score.** The rubric names the dimensions; the critic closes each one
+in a state, and the verdict is computed from the states.
 
-### Anchor the scale, or the top of it collapses
+### Why the number had to go
 
-An unanchored 0–10 is not a scale, it is a mood. Left to itself a critic scores
-bimodally — a defect crashes the number to 5, and its absence floats it to 9 or
-10 — so the bar never binds, and the loop exits on the first clean pass. That is
-"iterate until nobody finds a bug", which is a much lower bar than the one this
-technique is named after.
+The rubric used to be scored 0–10 against a bar of 8.5. Measured on a real run, it
+decided nothing: a defect crashed the number to 5 and its absence floated it to 9
+or 10, so the bar never bound. Anchoring the scale — writing "defect-free work is
+an 8" into the contract and the critic — did not help either; critics read the
+anchors and still returned 9 for defect-free work, twice.
 
-Put the anchors in the contract, and make the top expensive:
+The reason is structural, not a prompting failure. A score is produced *after* the
+analysis, as a label on a conclusion already reached, and 9 is the position of
+least resistance: 8 reads as criticism you must justify, 10 as a claim you must
+defend. More basically, a score asks the critic to **summarize**, and summarizing
+is the one thing a critic must never do. Everything valuable it produced on that
+run was specific — `file:line`, an exit code, a probe, a named missing test. The
+one thing that was not specific was the number, and it was the only useless thing
+in the output.
 
-| Score | Meaning |
+### The three states
+
+Each dimension in the rubric closes as exactly one of:
+
+| State | What the critic writes |
 |---|---|
-| 10 | you would teach the reference standard using this, and can name no change that would improve it |
-| 9 | you would approve it with no comment |
-| 8 | you would approve it and leave one comment |
-| 7 | you would ask for changes first |
-| ≤6 | something is wrong, not merely improvable |
+| **GAP** | the defect, with `file:line`, and what would fix it |
+| **IMPROVEMENT** | the material change that is missing, with `file:line` |
+| **CLEAR** | *how it knows* — the command and exit code, the probe and its result, or the two things compared and where |
 
-**8 is where competent, defect-free work lands** — and 8 is below the bar. That
-is deliberate. It forces the second iteration that a bimodal scale skips, and
-the second iteration is where the technique earns its cost.
+`CLEAR` is the load-bearing one. "I found nothing wrong here" is a feeling, and a
+dimension closed on a feeling is unverified. Requiring the evidence that closes
+the question turns *"unverified is not a pass"* from an exhortation into a shape
+the critic has to fill. If the evidence cannot be produced, the dimension is not
+`CLEAR` — it is an `IMPROVEMENT` naming the check nobody can currently run.
 
-Pair the anchors with the critic's `TO REACH 10:` obligation: for every
-dimension not scored 10, name the one change that would get it there — and only
-if it is **material**, meaning it would alter behavior, failure, or verification.
-Naming, structure and taste go to `NOTES` and never hold a node open. Without
-that test there is always one more nitpick, no critic is ever impressed, and
-every node runs to its cap.
+The verdict falls out mechanically:
+
+```
+any GAP              -> FAIL
+else any IMPROVEMENT -> PASS, node not finished
+else all CLEAR       -> PASS, node finished
+```
+
+### Materiality keeps `IMPROVEMENT` finite
+
+An `IMPROVEMENT` must alter how the code **behaves**, how it **fails**, or how it
+is **verified**. Naming, structure, file layout, comments and taste are `NOTES`
+and never hold a node open. Without that limit there is always one more nitpick,
+no node ever finishes, and the iteration cap becomes the real brake — the failure
+this whole design exists to avoid.
 
 ### Tier every node before there is code to defend
 
@@ -92,7 +113,7 @@ task checklist assigns each node a tier:
 - **gauntlet** — carries the change's real risk. Iterates until the critic can
   name nothing material.
 - **review** — glue, wiring, config, scaffolding. Done at defect-free; its
-  `TO REACH 10` items go to the polish queue in `progress.md` and are applied by
+  `IMPROVEMENT` items go to the polish queue in `progress.md` and are applied by
   the integrator in Phase 4, which runs anyway.
 
 Both tiers get a clean-context critic, the full verifiers, and a `file:line`
@@ -141,7 +162,8 @@ property; let the critic do the judging. That is what you dispatched it for.
 ## BOUNDARIES
 - Max iterations per node: 5
 - Max waves: 4
-- Stall rule: stop a node after 2 consecutive rounds with no score improvement
+- Stall rule: stop a node after 2 consecutive rounds where OPEN did not fall,
+  or where the same item is still open
 - Never: commit secrets, .env contents, or keys
 - Never: drop/alter production schema, delete data, force-push, rewrite history
 - Never: deploy, or call a paid/external API not named in design.md

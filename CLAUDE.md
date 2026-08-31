@@ -75,10 +75,9 @@ commands/                             # uma fase por comando, pra rodar com apro
    teste; o número foi ajustado à realidade auditada, não ao texto novo.
 5. **Ondas de paralelismo exigem duas condições:** independência de dependências **e** conjuntos
    de `files:` disjuntos. Conflito → worktrees separados ou ondas consecutivas.
-6. **Fronteiras padrão:** 5 iterações por nó, 4 ondas, parada por estagnação após 2 rodadas sem
-   melhora de nota, barra do crítico 8.5/10 — numa escala **ancorada**, onde código sem defeito
-   vale 8 e só passa quem está acima disso. Ver a decisão #10; a barra sem as âncoras não
-   segura nada.
+6. **Fronteiras padrão:** 5 iterações por nó, 4 ondas, parada por estagnação após 2 rodadas em
+   que a contagem de itens abertos não caiu ou o mesmo item continua aberto. **Não há nota nem
+   barra** — ver a decisão #10.
 7. **`progress.md` é append-only.** É o que permite uma sessão nova retomar o loop sem repetir
    o que já falhou.
 8. **`install.sh` é idempotente** e nunca sobrescreve `AGENTS.md`, `contract.md` ou `progress.md`
@@ -91,35 +90,46 @@ commands/                             # uma fase por comando, pra rodar com apro
     conseguir nomear nada. Teto de iterações e regra de estagnação são **válvulas de segurança**
     pra quando esse estado nunca chega; bater numa delas é escalação, não conclusão.
 
-    A rodada de 30/08/2026 mostrou que isso estava no texto mas não implementado. As notas
-    saíam bimodais — defeito derruba pra 5, ausência de defeito sobe pra 9–10 — então a barra
-    de 8.5 nunca decidiu nada e todo nó parava na primeira passada limpa. Isso é "iterar até
-    ninguém achar bug", que é bem mais baixo.
+    **Não existe nota.** Houve uma, 0–10 com barra 8.5, e duas medições mostraram que ela não
+    decidia nada: defeito derrubava pra 5, ausência de defeito subia pra 9–10, e a barra nunca
+    ficava no meio. Ancorar a escala — escrever "sem defeito vale 8" no contrato e no crítico —
+    também não pegou: os críticos leram as âncoras e devolveram 9 assim mesmo, duas vezes.
 
-    Corrigido com **quatro peças que só funcionam juntas** — não desfaça uma sem as outras:
+    O motivo é estrutural, não de prompt. **Nota é produzida depois da análise**, como rótulo de
+    uma conclusão já tomada, e 9 é a posição de menor resistência. Mais no fundo: nota pede que
+    o crítico **resuma**, e resumir é a única coisa que um crítico não pode fazer. Tudo que ele
+    produziu de valioso era específico — `file:line`, exit code, sonda, teste faltando. A única
+    coisa não-específica que ele produziu foi o número, e foi a única inútil.
 
-    | Peça | O que faz | Onde mora |
+    Cada dimensão da rúbrica fecha em um de três estados, e o veredito é **calculado**:
+
+    | Estado | O que o crítico escreve | Efeito |
     |---|---|---|
-    | Escala ancorada | código sem defeito vale **8**, abaixo da barra, de propósito | `harsh-critic`, `phase-2`, `assets/contract.md` |
-    | `TO REACH 10:` | crítico nomeia a única mudança que levaria cada dimensão ao 10 | `harsh-critic` |
-    | Teste de materialidade | só conta o que muda comportamento, falha ou verificação; nome e gosto vão pra `NOTES` | `harsh-critic`, `phase-2` |
-    | Tier por nó | `gauntlet` itera até impressionar; `review` para em sem-defeito e manda o resto pra fila de polimento | `assets/contract.md`, `phase-2`, `phase-3` |
+    | `GAP` | o defeito, com `file:line` | FAIL |
+    | `IMPROVEMENT` | a mudança material que falta, com `file:line` | passa, não terminou |
+    | `CLEAR` | **como ele sabe** — comando + exit code, sonda + resultado, ou as duas coisas comparadas e onde | terminou, naquela dimensão |
 
-    **O teste de materialidade é o que torna a barra alcançável.** Sempre dá pra implicar com
-    alguma coisa; sem ele nenhum crítico jamais fica impressionado, todo nó bate o teto de 5, e
-    o contador volta a ser o freio real — só que pelo lado caro.
+    **`CLEAR` é a peça que carrega o peso.** "Não achei nada aqui" é sensação, e dimensão
+    fechada em sensação não foi verificada. Exigir a evidência transforma o
+    *"unverified is not a pass"* de exortação em formato que o crítico tem que preencher.
 
-    **O tier é o que preserva code review sem preço de gauntlet.** Nó `review` continua tendo
-    crítico de contexto limpo, verificadores e veredito com `file:line`; ele só não é cobrado a
-    ficar excelente. Regra dura: **se todo nó é gauntlet, nenhum é** — você encareceu o loop
-    sem mirá-lo. E o tier é decidido na Fase 2, antes de existir código pra proteger, senão
-    vira desculpa retroativa.
+    Três regras que sustentam o resto — **não desfaça uma sem as outras**:
 
-    **A fila de polimento não é descarte.** Vai pro integrador, que já roda e já edita, e o
-    crítico final enxerga a fila — item que sumiu calado é gap, não economia.
+    - **Materialidade.** `IMPROVEMENT` só vale se muda comportamento, falha ou verificação.
+      Nome, estrutura e gosto vão pra `NOTES`. Sem isso sempre há o que implicar, nó nenhum
+      termina, e o teto de iterações volta a ser o freio real — pelo lado caro. Medido: funciona,
+      um crítico declarou "nada material" e encerrou.
+    - **Tier por nó.** `gauntlet` itera até tudo `CLEAR`; `review` para em sem-`GAP` e manda os
+      `IMPROVEMENT` pra fila de polimento. Os dois recebem crítico de contexto limpo,
+      verificadores e `file:line` — o tier só decide se o nó é cobrado a ficar excelente. **Se
+      todo nó é gauntlet, nenhum é.** Decidido na Fase 2, antes de existir código pra proteger.
+    - **Fila de polimento não é descarte.** Vai pro integrador, que já roda e já edita, e o
+      crítico final enxerga a fila — item que sumiu calado é `GAP`, não economia.
 
-    Custo estimado: 0% a +15% sobre a rodada de hoje, contra +61% da versão em que todo nó
-    iterava. Ainda **não medido** — ver a lista do que falta.
+    A estagnação, que dependia de "melhora de nota", virou fato observável: duas rodadas em que
+    a contagem de itens abertos não cai, ou o mesmo item continua aberto.
+
+    Custo medido: 1 nó em 4 iteraria, ≈ +8%.
 11. **O pipeline inteiro e as fases avulsas coexistem.** `/sdd-gauntlet-loop` roda ponta a ponta;
     `commands/` tem uma fase por comando pra quando você quer aprovar no meio. Os comandos são
     finos de propósito: eles apontam pro `SKILL.md` e pra `references/` correspondente em vez de
@@ -280,11 +290,14 @@ correção.
 
 **Custo:** 1 nó em 4 iteraria, ≈ +8% — dentro da faixa 0–15% estimada.
 
-**O que fazer com isso (ainda não feito, e de propósito):** n=2, um modelo só, uma sessão só.
-Evidência fraca demais pra arrancar o sistema de nota. O próximo passo é decidir entre: (a)
-tornar a nota explicitamente consultiva e mover o veredito pros dois booleanos, que é o que já
-acontece de fato; ou (b) tentar fazer as âncoras pegarem — pedir a nota **antes** da lista de
-gaps, ou exigir que 9 e 10 venham com justificativa escrita. Testar (b) custa 2 chamadas.
+**O que foi feito com isso:** a nota saiu inteira, substituída pelos três estados da decisão
+#10. Não foi só "tornar a nota consultiva" — a medição apontou que o problema era pedir um
+resumo a quem existe pra ser específico, então a peça foi removida em vez de enfraquecida.
+
+**Ainda não medido:** os três estados nunca rodaram. A pergunta aberta agora é se `CLEAR`
+resiste à preguiça — se o crítico realmente cola comando e resultado, ou se escreve
+"verificado" e segue. Se escrever, o formato precisa recusar `CLEAR` sem evidência colada, e
+isso se testa com as mesmas 2 chamadas baratas de antes.
 
 ### Atrito conhecido, ainda não resolvido
 

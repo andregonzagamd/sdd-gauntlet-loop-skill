@@ -3,7 +3,7 @@
 > **Change:** [change-id]
 > **Spec:** `specs/[change-id]/`
 > **Status:** draft | approved | in progress | passed
-> **Quality bar:** 8.5 / 10
+> **Done means:** every rubric dimension closed `CLEAR` by a clean-context critic
 
 The single source of truth for both builders and critics. Anything not written
 here will not be built and will not be enforced.
@@ -41,33 +41,37 @@ Commands that must exit 0. If it has no exit code, it belongs in the rubric, not
 
 ## CRITIC RUBRIC
 
-Scored 0–10 by a clean-context critic that did not write the code. Bar: **8.5**.
-Every dimension must clear the bar; a high average does not rescue a low one.
+Closed by a clean-context critic that did not write the code. **There is no
+score and no bar.** Each dimension below ends in exactly one state:
 
-**The scale is anchored, and 8 is the default for work with nothing wrong with it:**
+| State | What the critic writes | Effect |
+|---|---|---|
+| **GAP** | the defect, with `file:line`, and what would fix it | FAIL |
+| **IMPROVEMENT** | the material change missing, with `file:line` | passes, not finished |
+| **CLEAR** | *how it knows* — command + exit code, probe + result, or the two things compared and where | finished, for that dimension |
 
-| Score | Meaning |
+An `IMPROVEMENT` must alter how the code **behaves**, how it **fails**, or how it
+is **verified**. Naming, structure, layout, comments and taste are `NOTES` and
+never hold a node open.
+
+`CLEAR` is not "I found nothing here" — that is a feeling, and a dimension closed
+on a feeling is unverified. It is the evidence that closes the question. If the
+evidence cannot be produced, the dimension is an `IMPROVEMENT` naming the check
+nobody can currently run.
+
+A node is finished when **every** dimension is `CLEAR`. Defect-free is not
+finished: it only means no `GAP`. The counters under BOUNDARIES are safety valves
+for when that state never arrives; hitting one is an escalation, not a finish.
+
+| Dimension | What it asks |
 |---|---|
-| 10 | the critic would teach the reference standard using this, and can name no change that would improve it |
-| 9 | the critic would approve it with no comment |
-| 8 | the critic would approve it and leave one comment |
-| 7 | the critic would ask for changes first |
-| ≤6 | something is wrong, not merely improvable |
-
-A node is finished when the critic **cannot name what would make it better** —
-not when it stops finding defects. "Nothing broken" is an 8, and 8 is below the
-bar. The counters under BOUNDARIES are safety valves for when that never
-happens; hitting one is an escalation, not a finish.
-
-| Dimension | What earns a low score |
-|---|---|
-| Correctness | the objective is not actually met, or an edge case in `design.md` is unhandled |
-| Completeness | stubs, `TODO`s, hardcoded values, silently dead paths |
-| Design fidelity | the builder quietly changed an interface or decision from `design.md` |
-| Failure behavior | bad input, network failure, or empty state does something wrong or unclear |
-| Codebase fit | reads like a foreign object next to the surrounding code |
-| Test integrity | tests assert nothing, mock away the thing under test, or were weakened to pass |
-| Reference comparison | falls short of the named reference standard, with the gap stated |
+| Correctness | is the objective met, including every edge case named in `design.md`? |
+| Completeness | any stub, `TODO`, hardcoded value, or silently dead path? |
+| Design fidelity | did the builder quietly change an interface or decision from `design.md`? |
+| Failure behavior | does every error path named in the design exist, behave as pinned, and have a test that triggers it? |
+| Codebase fit | does this read like whoever wrote the rest of the repo wrote it? |
+| Test integrity | do tests assert exact values from the design, rather than nothing, a mock, or the implementation itself? |
+| Reference comparison | held next to [the named reference standard], where does it fall short? |
 
 ---
 
@@ -75,7 +79,8 @@ happens; hitting one is an escalation, not a finish.
 
 - Max iterations per node: **5**
 - Max waves: **4**
-- Stall rule: stop a node after **2** consecutive rounds with no score improvement
+- Stall rule: stop a node after **2** consecutive rounds where the open-item
+  count did not fall, or where the same item is still open
 - Escalate to a human for: [auth, billing, data retention, anything irreversible]
 
 **Never, under any framing:**
@@ -107,11 +112,11 @@ gauntlet, nothing is: you have just made the loop expensive without aiming it.
 Tiering it now, before there is code to defend, is what stops this from becoming
 a retroactive excuse for mediocre work.
 
-- [ ] T1 — [task] — tier: [gauntlet|review] — [why] — critic: __ /10
-- [ ] T2 — [task] — tier: [gauntlet|review] — [why] — critic: __ /10
-- [ ] T3 — [task] — tier: [gauntlet|review] — [why] — critic: __ /10
+- [ ] T1 — [task] — tier: [gauntlet|review] — [why] — open: __
+- [ ] T2 — [task] — tier: [gauntlet|review] — [why] — open: __
+- [ ] T3 — [task] — tier: [gauntlet|review] — [why] — open: __
 
-**Integration:** [ ] full verifier suite on the merged change — critic: __ /10
+**Integration:** [ ] full verifier suite on the merged change — open: __
 
 ---
 

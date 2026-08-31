@@ -31,16 +31,16 @@ You may edit code to reconcile seams. You may not add features, and you may
 not weaken a test to make the suite green.
 ```
 
-Then send the entire change to one final clean-context `harsh-critic`, scored against the whole contract rather than a single task. This is the verdict that matters.
+Then send the entire change to one final clean-context `harsh-critic`, closing every rubric dimension against the whole contract rather than a single task. This is the verdict that matters, and the change is not done until every dimension comes back `CLEAR`.
 
 ## The archive step
 
 When the final critic passes and every contract box is checked:
 
 1. Move `specs/<change-id>/` to `specs/archive/<change-id>/`, or run `/opsx archive` when the project uses OpenSpec. The specification stops being a plan and becomes the documentation of how the thing actually works.
-2. Append the closing entry to `progress.md`: final scores, verifier results, files touched, and anything deliberately left undone.
+2. Append the closing entry to `progress.md`: how the final critic closed each dimension, verifier results, files touched, and anything deliberately left undone.
 3. If `design.md` drifted during the build — and it usually does — update it to match reality *before* archiving. An archived spec that lies is worse than no spec, because the next change will be planned against it.
-4. **Promote what the critics kept asking for into `AGENTS.md`.** Read the run's `TO REACH 10` items and gaps together. Anything that came up on more than one node was never a property of that node — it is a convention this repo had not written down, and the builders had no way to know it.
+4. **Promote what the critics kept asking for into `AGENTS.md`.** Read the run's `GAP` and `IMPROVEMENT` items together. Anything that came up on more than one node was never a property of that node — it is a convention this repo had not written down, and the builders had no way to know it.
 
    Write it into the constitution's **Conventions** as one line, and the next change's *first* draft is already better. This is the only quality gain in the whole pipeline that costs nothing per run: every other mechanism buys quality with iterations, and iterations are paid again on every change. A line in `AGENTS.md` is paid once.
 
@@ -52,7 +52,7 @@ Close with a report that can be checked, not a victory lap:
 
 - what was built, in one paragraph;
 - every verifier and its result;
-- the final critic score per rubric dimension;
+- how the final critic closed each rubric dimension, with the evidence behind every `CLEAR`;
 - what the contract deliberately left out (the non-goals from `proposal.md`);
 - anything you had to assume because a question went unanswered;
 - what you would look at first if something breaks in production.

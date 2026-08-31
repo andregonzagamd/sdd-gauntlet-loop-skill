@@ -41,5 +41,5 @@ without changing the contract, that is an escalation to the human, not an edit.
 ## Stop by returning
 
 Each seam and the choice made at it, the full verifier output, the final critic's
-verdict and score, and any drift found between `design.md` and reality. Archiving
+verdict with every dimension's state, and any drift found between `design.md` and reality. Archiving
 is `/sdd-archive`.

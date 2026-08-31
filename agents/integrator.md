@@ -29,7 +29,7 @@ not evidence the system works. Your job is the seams between them.
    implementation, and say which one you kept.
 3. Walk every interface in `design.md` and verify both sides of it in the
    actual code.
-4. **Apply the polish queue.** `progress.md` carries the `TO REACH 10` items that
+4. **Apply the polish queue.** `progress.md` carries the `IMPROVEMENT` items that
    review-tier nodes passed with — real improvements a critic named, deliberately
    deferred to you instead of buying each one its own builder round. Work them in
    one pass. Anything you decline, say so and why; the final critic sees the
