@@ -294,10 +294,40 @@ correção.
 #10. Não foi só "tornar a nota consultiva" — a medição apontou que o problema era pedir um
 resumo a quem existe pra ser específico, então a peça foi removida em vez de enfraquecida.
 
-**Ainda não medido:** os três estados nunca rodaram. A pergunta aberta agora é se `CLEAR`
-resiste à preguiça — se o crítico realmente cola comando e resultado, ou se escreve
-"verificado" e segue. Se escrever, o formato precisa recusar `CLEAR` sem evidência colada, e
-isso se testa com as mesmas 2 chamadas baratas de antes.
+### Segunda medição — os três estados, em Haiku, com prompt magro
+
+Desenho: 2 críticos em **Haiku** (modelo mais fraco = teste mais duro) sobre os mesmos 2 nós,
+com **prompt de dispatch curto de propósito**, pra ver se o `harsh-critic.md` carrega o formato
+sozinho. 66k tokens.
+
+**`CLEAR` resistiu à preguiça.** Os dois modelos entregaram toda dimensão em estado com
+evidência colada — aritmética refeita, `file:line`, comando com exit code. Ninguém escreveu
+"verificado" e seguiu. O formato não precisa recusar `CLEAR` vazio; ele já não aparece.
+
+**O formato sobrevive a prompt magro; a profundidade não.** O `harsh-critic.md` sozinho
+sustenta os estados e a evidência. As sondas sistemáticas (round-trip sobre faixa, ordens
+embaralhadas, `od -c`) vieram dos prompts longos com casos nomeados — com prompt curto,
+ninguém as fez. Isso refina o diagnóstico da primeira medição: **a skill carrega a forma, o
+prompt de dispatch carrega o rigor.** As duas coisas precisam existir.
+
+**O achado que importa — críticos únicos são cegos em lugares diferentes:**
+
+| Nó | Sonnet (prompt longo) | Haiku (prompt magro) |
+|---|---|---|
+| `money.js` | terminado, "nada material" | **achou**: `NaN`/`Infinity` sem teste, e o design os nomeia (design.md:95) — verificado, real |
+| `report.js` | **achou**: total zero, mês negativo e vazio-com-total sem teste — verificado, real | terminado, "100% coverage" — **falso** |
+
+Cada um achou um item real que o outro não viu. Nenhum é melhor. E note que o Sonnet
+classificou o achado do Haiku como `NOTES` ("coverage nicety"), quando o design nomeia o
+caminho de erro explicitamente — a rúbrica manda testar todo caminho nomeado.
+
+Custo: 66k (Haiku) contra 67k (Sonnet) em **tokens** — a economia é no preço por token, não no
+volume. Haiku foi mais lento (190s contra 73s no `money.js`).
+
+**Proposta em aberto, não implementada:** para o veredito `PASS-FINISHED` — o arriscado, porque
+errar ali é silencioso — usar **dois críticos baratos em vez de um caro**, unindo os itens
+abertos dos dois. Nesta amostra isso acharia 2 itens reais em vez de 1, pelo mesmo volume de
+tokens e preço menor. Evidência: n=2, um nó cada. Suficiente pra propor, não pra fechar.
 
 ### Atrito conhecido, ainda não resolvido
 
