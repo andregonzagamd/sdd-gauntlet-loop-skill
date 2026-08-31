@@ -194,12 +194,8 @@ Fechado em 30/08/2026:
 
 Falta:
 
-- [ ] **medir o custo do freio novo.** A decisão #10 foi escrita mas nunca rodou. Rode a
-      pipeline no mesmo alvo `ledger` e compare iterações por nó com a rodada de hoje
-      (T1=1, T2=1, T3=2, T4=1) e o total de chamadas de subagente (13) e tokens (~459k).
-      As duas perguntas: os nós `gauntlet` passam de uma iteração, e algum nó bate o teto de 5
-      por o crítico nunca se dar por satisfeito? Se o segundo acontecer, o teste de
-      materialidade está frouxo demais.
+- [x] medir o freio novo — feito em 30/08/2026, ver a seção abaixo. **Duas das quatro peças
+      funcionam, uma não pegou.**
 - [x] `_to_delete/` apagada em 30/08/2026 — era o snapshot da entrega original, 22 arquivos,
       todos presentes no repo em versão mais nova e agora sob git. Nada exclusivo.
 - [x] push: repositório `andregonzagamd/sdd-gauntlet-loop-skill`, criado **privado**. A regra do
@@ -253,6 +249,42 @@ fixture. Corrigido em 1 iteração.
    quase produziu um veredito errado: `money.js` faz `Number(whole) * 100 + Number(fraction)`,
    que é aritmética inteira sobre substrings já separadas. Escreva a propriedade que deve valer
    e deixe o crítico julgar — foi pra isso que você o despachou.
+
+### A medição do freio — 30/08/2026
+
+Experimento barato de propósito: em vez de rodar a pipeline inteira de novo (~600k tokens),
+recriticar o código do `ledger` que **já existe** com as regras novas. 2 chamadas, ~67k tokens.
+Ataca exatamente o ponto em dúvida: a escala ancorada puxa nota pra baixo, e o que o crítico
+nomeia é material ou é implicância?
+
+Tier atribuído: `money.js` e `report.js` = **gauntlet**; `parse.js` e `cli.js` = **review**.
+
+| Nó | Nota mínima | `TO REACH 10` | Sob as regras novas |
+|---|---|---|---|
+| `money.js` (11 testes) | 9,0 | **nada material** | termina na iteração 1 |
+| `report.js` (3 testes) | 9,0 | material — 3 casos só cobertos pela sondagem do crítico, não pela suíte | **itera** |
+
+**Funciona — o teste de materialidade.** Era o risco maior: crítico que sempre acha o que
+implicar e manda todo nó ao teto de 5. Não aconteceu. O `money.js` declarou explicitamente que
+não conseguia nomear nada material e mandou as observações de cobertura pra `NOTES`. O freio é
+alcançável, que é o que um freio precisa ser.
+
+**Funciona — a discriminação.** O nó com suíte densa termina, o com suíte magra ganha rodada.
+O loop mira onde falta rigor em vez de gastar parelho.
+
+**Não funciona — a escala ancorada.** Os dois críticos receberam a tabela dizendo *"código sem
+defeito vale 8"* e deram **9 em tudo**. Sem defeito continuou virando 9 automaticamente. Na
+prática o veredito é decidido por dois booleanos — *tem gap?* e *`TO REACH 10` está vazio?* — e
+a nota não decide nada. É a mesma queixa que motivou a decisão #10, sobrevivendo à própria
+correção.
+
+**Custo:** 1 nó em 4 iteraria, ≈ +8% — dentro da faixa 0–15% estimada.
+
+**O que fazer com isso (ainda não feito, e de propósito):** n=2, um modelo só, uma sessão só.
+Evidência fraca demais pra arrancar o sistema de nota. O próximo passo é decidir entre: (a)
+tornar a nota explicitamente consultiva e mover o veredito pros dois booleanos, que é o que já
+acontece de fato; ou (b) tentar fazer as âncoras pegarem — pedir a nota **antes** da lista de
+gaps, ou exigir que 9 e 10 venham com justificativa escrita. Testar (b) custa 2 chamadas.
 
 ### Atrito conhecido, ainda não resolvido
 
