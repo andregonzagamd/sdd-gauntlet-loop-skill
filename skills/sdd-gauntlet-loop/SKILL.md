@@ -75,7 +75,7 @@ Translate `design.md` + `tasks.md` into `contract.md` at the repo root. It has f
 
 - **OBJECTIVE** — the exact observable outcome, one paragraph, no adjectives that can't be measured.
 - **VERIFIERS** — shell commands that must exit 0 (tests, typecheck, lint, build), plus any manual check with a pass/fail statement.
-- **CRITIC RUBRIC** — the dimensions a critic scores, the minimum bar (default 8.5/10) on an anchored scale where defect-free work is an 8, the reference standard being compared against, and each node's tier (`gauntlet` or `review`) with the risk that justifies it.
+- **CRITIC RUBRIC** — the dimensions a critic scores, the bar (default 8.5/10, on a scale anchored so defect-free work is an 8), the reference standard being compared against, and each node's tier: `gauntlet` or `review`.
 - **BOUNDARIES** — max iterations per node (default 5), max total waves, forbidden actions, and what forces escalation to the human.
 
 A contract with a verifier nobody can run is not a contract. If you cannot name the command, say so and ask.
@@ -106,9 +106,9 @@ Details: `references/phase-4-integrate-archive.md`.
 
 ## Stop conditions
 
-**The brake is the critic being impressed, not the counter running out.** A node finishes when a clean-context critic can name no **material** improvement — nothing that would change behavior, failure, or verification. Naming and taste never hold a node open; without that limit no critic is ever impressed and every node runs to its cap.
+**The brake is the critic being impressed, not the counter running out.** A node finishes when a clean-context critic can name no **material** improvement — nothing that would change behavior, failure, or verification. Naming and taste never hold a node open.
 
-Defect-free work scores 8 — below the bar, deliberately. Only **gauntlet-tier** nodes buy the iterations that get past it; **review-tier** nodes finish at defect-free and send their improvements to the integrator's polish queue. Both tiers get a clean-context critic and the full verifiers. Tiers are set in `contract.md` in Phase 2. The counters below are safety valves; reaching one is an escalation, not a success.
+Defect-free work scores 8, below the bar, deliberately. Only `gauntlet`-tier nodes buy the iterations that get past it; `review`-tier nodes finish there and defer the rest to the integrator. The counters below are safety valves; reaching one is an escalation, not a success.
 
 Stop and hand back to the human when any of these is true:
 

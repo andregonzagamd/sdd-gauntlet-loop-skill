@@ -55,8 +55,24 @@ commands/                             # uma fase por comando, pra rodar com apro
    Cursor / Claude Code / Codex / Gemini.
 3. **Uma cópia só dos templates**, em `skills/sdd-gauntlet-loop/assets/`. Não recrie uma pasta
    `templates/` na raiz — foi removida de propósito, porque duas cópias sempre divergem.
-4. **`SKILL.md` fica enxuto (~1200 palavras).** Detalhe vai pra `references/`, que só é lido
-   quando a fase correspondente começa. Se o SKILL.md crescer, mova conteúdo, não acrescente.
+4. **O `SKILL.md` é mapa, não manual — e o teste é o conteúdo, não a contagem.** Ele é lido
+   inteiro toda vez que a skill ativa, então cada frase tem que ser uma destas três: o nome de
+   uma fase e o que ela produz, uma regra que vale **entre** fases, ou uma condição de parada.
+   O que só importa depois que você já está dentro da fase mora em `references/`, lido sob
+   demanda.
+
+   **~1350 palavras é alarme de fumaça, não lei.** Passar disso não é a violação — é o sintoma
+   de que alguma frase falhou no teste acima. Vá achar qual e mova pra `references/`.
+
+   A ordem importa, e é o que separa disciplina de desculpa: **audite primeiro, rebaseline
+   depois.** Subir o teto pra caber o que você acabou de escrever é ajustar a régua ao
+   resultado, e régua assim para de decidir qualquer coisa — foi exatamente o que aconteceu com
+   a barra de 8.5 antes da decisão #10. Subir depois de auditar frase a frase, cortar o que
+   falhou no teste e verificar que o resto passa, é outra coisa.
+
+   Histórico: era ~1200, virou ~1350 em 30/08/2026, depois de auditar e cortar detalhe de fase
+   que tinha vazado pra condição de parada e pra Fase 2. O conteúdo remanescente passou no
+   teste; o número foi ajustado à realidade auditada, não ao texto novo.
 5. **Ondas de paralelismo exigem duas condições:** independência de dependências **e** conjuntos
    de `files:` disjuntos. Conflito → worktrees separados ou ondas consecutivas.
 6. **Fronteiras padrão:** 5 iterações por nó, 4 ondas, parada por estagnação após 2 rodadas sem
