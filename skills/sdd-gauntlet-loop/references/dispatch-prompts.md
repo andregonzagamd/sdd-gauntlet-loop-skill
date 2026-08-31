@@ -242,6 +242,16 @@ cannot emit and the consuming function is nonetheless exported to accept. For
 every exported function, enumerate its parameter's states from the type it
 declares, not from what its sibling happens to hand it.
 
+**Enumerate the whole product, then subtract.** This is the step that was measured
+to fail even when everything before it went right: a critic crossed exactly the
+right pair of fields, and stopped at the first uncovered combination it noticed.
+Two fields with two interesting values each is four corners, and the acceptance
+criteria typically cover one while the fixture covers another — leaving *two*,
+not one. So write all the corners down first, strike the ones a test already
+reaches, and probe **everything that remains**. Stopping at the first hit is how
+a generator that reached the right question still returns the wrong half of the
+answer.
+
 **2. The source of truth for the test's own data.** If the task says "the rows
 from `fixtures/x.csv`", tell the critic to open the fixture and compare the test's
 data against it **field by field**. A test whose data merely *aggregates* to the

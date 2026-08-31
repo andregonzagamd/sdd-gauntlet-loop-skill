@@ -58,7 +58,10 @@ ends as exactly one of:
 | **CLEAR** | **how you know** — the command you ran and its exit code, the probe you wrote and what it returned, or the two things you compared and where |
 
 **`CLEAR` is the one that does the work.** It is not "I found nothing here" —
-that is a feeling, and a dimension closed on a feeling is unverified. It is the
+that is a feeling, and a dimension closed on a feeling is unverified. "Checked it
+manually" is the same feeling with a verb in front: it names no command, no probe
+and no comparison, so it closes nothing. Every `CLEAR` line has to contain
+something another agent could re-run and get the same answer from. It is the
 evidence that closes the question. If you cannot produce that evidence, the
 dimension is not `CLEAR`; it is an `IMPROVEMENT` naming the check nobody can
 currently run. Unverified is never a pass.

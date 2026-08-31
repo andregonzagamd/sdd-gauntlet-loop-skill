@@ -487,6 +487,45 @@ Refinamento escrito no gerador, derivado dessa falha específica.
 `GAP` carregando cinco itens. Nem 1 nem 5. O `harsh-critic.md` dizia "count of GAP + IMPROVEMENT"
 sem dizer *de quê* — e a regra de estagnação lê esse número. Agora diz itens, não dimensões.
 
+### Sexta medição — o refinamento do 1b, rodado fora de casa, no Gemini 3.1 Pro. 31/08/2026
+
+Primeira medição feita **em outra família de modelos**, num agente sem nenhuma peça desta skill
+instalada: o prompt foi salvo autocontido — os três estados, o veredito computado e o formato de
+retorno inline — e proibido de ler `measurements/README.md` e este arquivo, que são o gabarito.
+
+**Dos três itens da bancada: dois achados.** Total de categoria em zero e total de mês negativo.
+`OPEN: 7`, `PASS-UNFINISHED`, contagem por item — a correção do `OPEN` da quinta medição pegou.
+
+**O terceiro tem a falha mais informativa da série inteira.** O produto `months × grandTotalCents`
+tem quatro cantos. O `done when` cobre `(vazio, zero)`; a fixture cobre `(não-vazio, não-zero)`.
+Sobram dois. Ele cruzou **o par de campos certo** — coisa que o 1b sem refinamento nem alcançava —
+e parou no primeiro canto descoberto que viu: `(não-vazio, zero)`. O da bancada é o outro.
+
+Ou seja: o refinamento leva o crítico à pergunta certa e não garante que ele termine de
+respondê-la. Virou a linha final do gerador: **enumere o produto inteiro, risque os cantos já
+cobertos, sonde todos os que sobram.** Parar no primeiro achado é como um gerador que chegou na
+pergunta certa devolve metade da resposta.
+
+**E achou um estado que nenhum crítico tinha achado**, exatamente da forma que o 2.4 mira:
+`months[].categories === []` — `buildReport` não consegue emitir, `formatReport` é exportada e
+aceita, o design nunca pina o que deve imprimir. O refinamento funciona; ele só não é exaustivo
+sozinho.
+
+**Duas fraquezas do formato apareceram porque o modelo era outro:**
+
+- **`CLEAR` degradou pra "checked manually".** Money discipline e Completeness fecharam assim —
+  sem comando, sem sonda, sem comparação. A segunda medição tinha concluído que "`CLEAR` resiste
+  à preguiça" com base em Haiku; resiste **dentro da família**. Corrigido no `harsh-critic.md`:
+  todo `CLEAR` tem que conter algo que outro agente consiga re-rodar.
+- **Cobertura não tinha dimensão dona.** Os sete itens foram parar em `Correctness`, e
+  `Test honesty` fechou `CLEAR` — enquanto o Sonnet, com os mesmos achados, tinha posto tudo em
+  `Test honesty`. Os dois têm defesa: a rúbrica define `Test honesty` como honestidade dos testes
+  que **existem** e `Failure behavior` só cobre caminho de **erro**. Estado de comportamento
+  normal sem teste caía no vão. Agora `Test integrity` tem as duas perguntas explícitas.
+
+Detalhe menor, registrado porque enganou: os sete itens vieram com `test/report.test.js:64`, e o
+arquivo tem 63 linhas. Não é coordenada de defeito, é "acrescente aqui".
+
 ### O teste de retomada — `progress.md` lido por contexto limpo. 31/08/2026
 
 A afirmação sob teste é a decisão #7: *"`progress.md` é append-only — é o que permite uma sessão

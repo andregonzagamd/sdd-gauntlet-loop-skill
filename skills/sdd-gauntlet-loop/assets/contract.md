@@ -75,9 +75,9 @@ for when that state never arrives; hitting one is an escalation, not a finish.
 | Correctness | is the objective met, including every edge case named in `design.md`? |
 | Completeness | any stub, `TODO`, hardcoded value, or silently dead path? |
 | Design fidelity | did the builder quietly change an interface or decision from `design.md`? |
-| Failure behavior | does every error path named in the design exist, behave as pinned, and have a test that triggers it? |
+| Failure behavior | does every error path named in the design exist, behave as pinned, and have a test that triggers it? **Error paths only** — a non-error state with no test belongs to Test integrity. |
 | Codebase fit | does this read like whoever wrote the rest of the repo wrote it? |
-| Test integrity | do tests assert exact values from the design, rather than nothing, a mock, or the implementation itself? A case only the critic's own probe ever exercised is untested — that is a finding, not evidence. |
+| Test integrity | two questions, and the second one has no other home. **Do the tests that exist tell the truth** — exact values from the design, rather than nothing, a mock, or the implementation itself? And **is every state the design permits actually tested**, not only the ones the fixture happens to reach? A case only the critic's own probe ever exercised is untested — that is a finding, not evidence. |
 | Reference comparison | held next to [the named reference standard], where does it fall short? |
 
 ---
