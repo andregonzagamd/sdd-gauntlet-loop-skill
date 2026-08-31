@@ -154,6 +154,10 @@ measurements/ledger/                  # a bancada: alvo congelado das medições
     Custo: uma chamada extra por nó terminado, na última iteração só. Gaste-a onde o primeiro
     prompt não chega — repetir a mesma lista é a única configuração medida como valendo nada.
 
+    **Medido nas duas direções, e é por isso que esta decisão vale:** prompt idêntico em modelo
+    diferente achou zero em 2 nós; lista de sondas diferente no **mesmo** modelo virou um nó que
+    quatro críticos tinham fechado. A variável é a sonda.
+
 12. **O pipeline inteiro e as fases avulsas coexistem.** `/sdd-gauntlet-loop` roda ponta a ponta;
     `commands/` tem uma fase por comando pra quando você quer aprovar no meio. Os comandos são
     finos de propósito: eles apontam pro `SKILL.md` e pra `references/` correspondente em vez de
@@ -239,8 +243,8 @@ Falta:
       `gh repo edit andregonzagamd/sdd-gauntlet-loop-skill --visibility public`
 - [x] o par cego rodou em 31/08/2026 e **reprovou a decisão #11 como estava escrita** — ver a
       quarta medição. A regra foi corrigida: sonda diferente, não modelo diferente.
-- [ ] falta medir a forma corrigida: 1 chamada, o prompt do `report.js` com o gerador 1b no
-      lugar do passo 2. Se achar os três casos, a decisão #11 fecha.
+- [x] a forma corrigida foi medida em 31/08/2026 e **passou** — ver a quinta medição. Mesmo
+      modelo, só a sonda mudou, e o nó virou de terminado pra aberto. A decisão #11 está fechada.
 
 ## A primeira rodada real — 30/08/2026
 
@@ -452,9 +456,36 @@ escritos em lugar nenhum. O cruzamento passa reto. Virou o gerador **1b** em
 `dispatch-prompts.md`: cruze cada domínio pinado contra cada operação que o consome, e pergunte o
 que a operação pode *produzir* na borda do domínio — não só o que ela recebe.
 
-**Ainda não medido, e está escrito como não-medido:** que um confirmador com sondas diferentes
-acha o que o primeiro perdeu. O experimento é 1 chamada — o prompt do `report.js` com o gerador
-1b no lugar do passo 2. Se achar os três casos, a decisão #11 fecha na forma nova.
+### Quinta medição — o gerador 1b, e a #11 fecha na forma corrigida. 31/08/2026
+
+1 chamada. **Mesmo modelo (Sonnet), mesmo contrato, mesmo design, mesma task verbatim** — só o
+passo 2 trocado pelo gerador 1b, com as cinco sub-etapas exigidas como *saída* (domínios,
+operações, produto cruzado, sondas, tabela contra a suíte). É o experimento isolado que faltava:
+a única variável é a lista de sondas.
+
+**O nó virou.** `PASS-FINISHED` (duas vezes, dois modelos, gerador nº 1) → **`PASS-UNFINISHED`**,
+`Test honesty: GAP`, com cinco estados produzíveis nomeados e nenhum coberto pela suíte:
+
+| Estado | Conhecido? |
+|---|---|
+| total de categoria somando negativo / mês negativo | **sim** — o item da bancada |
+| total de categoria cancelando em exatamente zero | **sim** — o item da bancada |
+| grand total negativo | novo |
+| categorias diferindo só por caixa (`Zoo` antes de `apple`, ordem UTF-16) | novo, e material — `design.md:57` pina "string sort" sem qualificar caixa |
+| entrada mínima não-vazia: uma linha só | novo, mais magro |
+
+**A decisão #11 fecha na forma corrigida.** O que compra a segunda opinião é a sonda; o modelo
+não compra nada. Quatro críticos com o gerador nº 1 fecharam esse nó; um com o 1b o abriu.
+
+**O que o 1b ainda não alcança, e vale escrever:** dos três casos da bancada ele pegou dois. O
+terceiro — `formatReport({months: [], grandTotalCents: N})` — ele *listou o domínio* do parâmetro
+de `formatReport` em 2.1 e não cruzou `months` vazio **contra** `grandTotalCents` não-zero. O 1b
+cruza domínio contra operação; não cruza **os campos independentes de uma mesma forma entre si**.
+Refinamento escrito no gerador, derivado dessa falha específica.
+
+**Um defeito de formato caiu junto, de graça:** o crítico devolveu `OPEN: 4` com uma dimensão em
+`GAP` carregando cinco itens. Nem 1 nem 5. O `harsh-critic.md` dizia "count of GAP + IMPROVEMENT"
+sem dizer *de quê* — e a regra de estagnação lê esse número. Agora diz itens, não dimensões.
 
 ### O teste de retomada — `progress.md` lido por contexto limpo. 31/08/2026
 

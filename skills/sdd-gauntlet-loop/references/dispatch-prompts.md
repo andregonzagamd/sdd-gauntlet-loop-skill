@@ -226,6 +226,22 @@ So: list every value domain the design pins. List every operation that reads one
 Cross them, and ask what the operation can *produce* at each edge of the domain,
 not just what it is handed. Then check the suite for each.
 
+Measured, this generator flipped a node four other critics had closed as finished
+— same model, same contract, same task, only the probe list changed. Make the
+crossing an output: demand the domain list, the operation list, the producible
+states, and a state-by-state table against the suite. A critic asked for the
+conclusion reports what it noticed.
+
+**And cross the fields of one shape against each other, not only against
+operations.** That is where this generator was measured to still leak: a shape
+with two independently pinned fields has a product of states, and the ones the
+code never builds itself are exactly the ones only reachable through a *public
+function that takes the shape as a parameter*. The miss had that form — an empty
+collection paired with a non-zero total, a combination the producing function
+cannot emit and the consuming function is nonetheless exported to accept. For
+every exported function, enumerate its parameter's states from the type it
+declares, not from what its sibling happens to hand it.
+
 **2. The source of truth for the test's own data.** If the task says "the rows
 from `fixtures/x.csv`", tell the critic to open the fixture and compare the test's
 data against it **field by field**. A test whose data merely *aggregates* to the

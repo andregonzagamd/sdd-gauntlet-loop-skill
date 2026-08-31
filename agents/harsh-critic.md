@@ -103,7 +103,7 @@ the builder does not need morale, it needs the gap and its coordinates.
 
 ```
 VERDICT: FAIL | PASS-UNFINISHED | PASS-FINISHED
-OPEN: <count of GAP + IMPROVEMENT>
+OPEN: <number of GAP + IMPROVEMENT items — items, not dimensions>
 
 VERIFIERS:
   <command> -> exit <n> <one-line result>
@@ -123,6 +123,12 @@ one missing.
 
 `OPEN` is the count the loop watches. It must fall between iterations; two rounds
 where the same items are still open is a stall, and a stall goes to a human.
+
+**Count items, not dimensions.** One dimension can carry several findings, and
+collapsing five of them behind a single dimension hides four from the stall rule,
+which then watches a number that cannot fall for reasons nobody can see. When a
+dimension holds more than one item, give each its own line under that dimension
+and count each.
 
 `NOTES` is for what is true, useful to the next node or the integrator, and not a
 defect: behavior the design never pinned, an edge case outside the fixture, a

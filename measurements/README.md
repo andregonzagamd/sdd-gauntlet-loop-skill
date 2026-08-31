@@ -34,7 +34,7 @@ produced, warts included. The two known warts are the point:
 | Node | What is missing | Found by |
 |---|---|---|
 | `src/money.js` | no test for `centsToDisplay(NaN)` or `Infinity`, though `design.md:95` names both | Haiku/magro ✓ · Sonnet/longo ✗ · Sonnet/template ✓ · Haiku/template ✓ |
-| `src/report.js` | no test for a zero category total, a negative month total, or `formatReport({months: [], grandTotalCents: N})` | Sonnet/longo ✓ · Haiku/magro ✗ · Sonnet/template ✗ · Haiku/template ✗ |
+| `src/report.js` | no test for a zero category total, a negative month total, or `formatReport({months: [], grandTotalCents: N})` | Sonnet/longo ✓ · Haiku/magro ✗ · Sonnet/template ✗ · Haiku/template ✗ · **Sonnet/gerador 1b ✓✓✗** (2 dos 3, mais 2 achados novos) |
 
 Those two gaps are the measuring instrument. A critic that finds them is working;
 one that closes the node as finished is not. Fixing them destroys the bench.
@@ -53,7 +53,16 @@ bench has already answered two design questions:
 
 The `report.js` item is also the reason generator 1b exists: its cases are implied
 by a pinned value domain ("may be negative") rather than named as cases, so the
-design-versus-`done when` crossing walks past them.
+design-versus-`done when` crossing walks past them. Generator 1b was then run on
+this node — **same model, same contract, same task, only the probe list changed** —
+and flipped it from finished to open, which is the cleanest evidence in the whole
+series that the probe list, not the model, is what a second critic has to vary.
+
+It also found two states nobody had listed (a negative grand total; categories
+differing only in case, which `design.md:57` leaves unqualified under "string
+sort"), and still missed the third bench item. If you extend the bench, that miss
+is the interesting one: it needs two independently pinned fields of one shape
+crossed against *each other*, not against an operation.
 
 The spec that produced it is in `specs/archive/ledger-core/`, and `progress.md` is
 the full append-only log of the run — 21 events, including the one node that
