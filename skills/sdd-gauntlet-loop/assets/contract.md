@@ -92,9 +92,24 @@ happens; hitting one is an escalation, not a finish.
 
 Mirrors `specs/[change-id]/tasks.md`. A box is checked only by a critic verdict.
 
-- [ ] T1 — [task] — critic: __ /10
-- [ ] T2 — [task] — critic: __ /10
-- [ ] T3 — [task] — critic: __ /10
+**Every node is tiered here, before any code exists.** Both tiers get a
+clean-context critic, the full verifiers, and a verdict with `file:line` — the
+tier decides only whether the node iterates toward excellence or stops at
+defect-free.
+
+| Tier | Which nodes | Ends when |
+|---|---|---|
+| **gauntlet** | the ones carrying this change's real risk — the logic that is hard to get right, the thing that is expensive when wrong | the critic can name no material improvement |
+| **review** | glue, wiring, config, scaffolding | no defects found; named improvements go to the polish queue for the integrator |
+
+Assign the tier from risk, not from size, and write the reason. If everything is
+gauntlet, nothing is: you have just made the loop expensive without aiming it.
+Tiering it now, before there is code to defend, is what stops this from becoming
+a retroactive excuse for mediocre work.
+
+- [ ] T1 — [task] — tier: [gauntlet|review] — [why] — critic: __ /10
+- [ ] T2 — [task] — tier: [gauntlet|review] — [why] — critic: __ /10
+- [ ] T3 — [task] — tier: [gauntlet|review] — [why] — critic: __ /10
 
 **Integration:** [ ] full verifier suite on the merged change — critic: __ /10
 

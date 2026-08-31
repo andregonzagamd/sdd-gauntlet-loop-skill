@@ -40,6 +40,11 @@ When the final critic passes and every contract box is checked:
 1. Move `specs/<change-id>/` to `specs/archive/<change-id>/`, or run `/opsx archive` when the project uses OpenSpec. The specification stops being a plan and becomes the documentation of how the thing actually works.
 2. Append the closing entry to `progress.md`: final scores, verifier results, files touched, and anything deliberately left undone.
 3. If `design.md` drifted during the build — and it usually does — update it to match reality *before* archiving. An archived spec that lies is worse than no spec, because the next change will be planned against it.
+4. **Promote what the critics kept asking for into `AGENTS.md`.** Read the run's `TO REACH 10` items and gaps together. Anything that came up on more than one node was never a property of that node — it is a convention this repo had not written down, and the builders had no way to know it.
+
+   Write it into the constitution's **Conventions** as one line, and the next change's *first* draft is already better. This is the only quality gain in the whole pipeline that costs nothing per run: every other mechanism buys quality with iterations, and iterations are paid again on every change. A line in `AGENTS.md` is paid once.
+
+   Be strict about what earns a line. One node wanting it is a node-level note. Two or more is a convention. Anything else is somebody's taste, and the constitution is not a style diary — it is read in full by every agent on every run, so a line that does not change behavior is a permanent tax.
 
 ## Reporting to the human
 

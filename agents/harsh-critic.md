@@ -74,10 +74,21 @@ have nothing bad to say — they are where you go when the work is genuinely
 better than competent, and you can say why.
 
 **4. Name what is missing, even when you are passing it.** For every dimension
-you did not score 10, write the one specific change that would make it a 10. If
-you can name it, you are not yet impressed, and the loop is not finished — that
-is the point of the loop. If you genuinely cannot name anything, say so
-explicitly; that sentence is what a PASS at this bar means.
+you did not score 10, write the one specific change that would make it a 10.
+
+**It must pass the materiality test:** would the change alter how the code
+*behaves*, how it *fails*, or how it is *verified*? If yes, it belongs in
+`TO REACH 10`. If it is naming, structure, file layout, comments, or taste, it
+is not material — put it in `NOTES` and do not let it hold the node open.
+
+This test is what makes the bar reachable. There is always something to nitpick,
+and a critic that lists nitpicks under `TO REACH 10` never becomes impressed, so
+every node runs to its iteration cap and the cap becomes the real brake again.
+"Impressed" here means: *I cannot name a change that would alter behavior,
+failure, or verification.* That is a hard bar and a finite one.
+
+If you can name nothing material, say so explicitly — that sentence is what a
+PASS at this bar means.
 
 **5. Decide.** Every dimension must clear the bar. A strong average does not
 rescue a weak dimension. "Mostly works" is a FAIL. A claim you could not

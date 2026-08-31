@@ -28,13 +28,16 @@ passed — do not rebuild them.
 3. **Gauntlet.** For each finished node, dispatch a **fresh** `harsh-critic` with a
    clean context. It gets `contract.md` and the diff. It does **not** get the
    builder's narrative, self-assessment, or account of how hard it was.
-4. **Iterate until the critic is impressed.** On FAIL, the gap goes back to that
-   node's builder verbatim, and a *new* critic re-scores. On a PASS whose
-   `TO REACH 10` section still names improvements, send those back too — that
-   node works and is not finished. A node ends when a critic can name nothing
-   that would make the work better. The iteration cap and the stall rule are
-   safety valves for when that never happens; hitting one is an escalation, not
-   a finish.
+4. **Iterate by tier.** On FAIL, the gap goes back to that node's builder
+   verbatim and a *new* critic re-scores — both tiers, always. On a PASS whose
+   `TO REACH 10` still names something material:
+   - **gauntlet-tier** node: send it back and run another iteration. It works,
+     and it is not yet impressive.
+   - **review-tier** node: it is done. Append the items to the polish queue in
+     `progress.md` for the integrator, and move on.
+
+   The iteration cap and the stall rule are safety valves for when the impressed
+   state never arrives; hitting one is an escalation, not a finish.
 5. **Persist after every verdict.** Append to `progress.md`: wave, node, iteration,
    verdict, score, gap, files changed. One line per event, newest last.
 

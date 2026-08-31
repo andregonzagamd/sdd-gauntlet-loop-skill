@@ -134,17 +134,30 @@ while iteration <= max_iterations:
         escalate("stalled", verdict.gaps)
         break
 
-    # gaps verbatim on a FAIL; on a PASS that still named improvements,
-    # send TO REACH 10 instead — the node is good and not yet finished
-    builder(gaps=verdict.gaps or verdict.to_reach_10)
+    if verdict.pass:                       # works, but not yet impressive
+        if node.tier == "gauntlet":
+            builder(gaps=verdict.to_reach_10)   # buy the extra round
+        else:
+            defer_to_integrator(verdict.to_reach_10)  # review tier: bank it
+            mark task done in tasks.md
+            break
+    else:
+        builder(gaps=verdict.gaps)         # verbatim, always
     iteration += 1
 else:
     escalate("iteration cap reached", verdict.gaps)
 ```
 
-`verdict.nothing_left_to_improve` is the brake. It is true only when the critic, asked what change would make the work a 10, answers that it cannot name one. A `PASS` whose `TO REACH 10` section is non-empty is a node that works and is not done: send the named improvements back and run another iteration. The counters below it are safety valves for when that state is never reached, and hitting one is an escalation, not a finish.
+`verdict.nothing_left_to_improve` is the brake. It is true only when the critic, asked what change would make the work a 10, can name nothing **material** — nothing that would alter behavior, failure, or verification. A `PASS` whose `TO REACH 10` is non-empty is a node that works and is not yet impressive.
 
-This is what makes the loop cost more than a single review pass, and it is the only reason the loop exists. A pipeline that stops at the first clean verdict has bought a code review, not a gauntlet.
+**What happens next depends on the node's tier, declared in `contract.md` before any code existed:**
+
+- **gauntlet tier** — the nodes carrying the change's real risk. Send `TO REACH 10` back to the builder and run another iteration. This is the expensive path and it is where the technique earns its cost.
+- **review tier** — glue, wiring, scaffolding, config. The node is done at defect-free. Its `TO REACH 10` is not thrown away: append it to the **polish queue** in `progress.md`, and Phase 4 hands the whole queue to the integrator, which is already running and already licensed to edit.
+
+That split is what keeps a real gauntlet on what matters without paying gauntlet prices on a 35-line entry point. A review-tier node still gets a clean-context critic, the full verifiers, and a verdict with `file:line` — it is a genuine code review. It simply is not asked to become excellent.
+
+Deferring is not discarding. Everything in the polish queue is applied in one existing pass and then judged by the final whole-change critic, so nothing named ever silently disappears.
 
 Pass the critic's gaps to the builder **verbatim**. Softening them — "the critic had some minor notes" — is how a loop converges on mediocrity. The same holds for `TO REACH 10`: relay it as written, and do not editorialize that it was "only polish".
 

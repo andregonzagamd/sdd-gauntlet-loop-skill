@@ -34,10 +34,15 @@ for this run. You do not see the other nodes and you do not need to.
 
 ## When a critic returns gaps
 
-You get the gaps verbatim. Fix exactly what they name. Do not argue with the
-critic in your output, do not "clarify" why it was actually fine, and do not
-take the opportunity to refactor something unrelated. Fix the gap, re-run your
-checks, return.
+You get them verbatim, and there are two kinds. **Gaps** mean the node failed:
+something is wrong. **`TO REACH 10` items** mean it passed and is not yet good
+enough — the work runs, and a critic could still name a change that would alter
+how it behaves, fails, or is verified. Treat both the same way: fix exactly what
+they name.
+
+Do not argue with the critic in your output, do not "clarify" why it was
+actually fine, and do not take the opportunity to refactor something unrelated.
+Fix what was named, re-run your checks, return.
 
 ## What you never do
 

@@ -78,10 +78,32 @@ commands/                             # uma fase por comando, pra rodar com apro
     A rodada de 30/08/2026 mostrou que isso estava no texto mas não implementado. As notas
     saíam bimodais — defeito derruba pra 5, ausência de defeito sobe pra 9–10 — então a barra
     de 8.5 nunca decidiu nada e todo nó parava na primeira passada limpa. Isso é "iterar até
-    ninguém achar bug", que é bem mais baixo. Corrigido com três peças que andam juntas:
-    escala ancorada onde **código sem defeito vale 8** (abaixo da barra, de propósito), a
-    obrigação `TO REACH 10:` no retorno do crítico, e a saída do loop condicionada a ele não
-    conseguir nomear mais nada. **Não desfaça uma sem as outras** — sozinhas elas não mordem.
+    ninguém achar bug", que é bem mais baixo.
+
+    Corrigido com **quatro peças que só funcionam juntas** — não desfaça uma sem as outras:
+
+    | Peça | O que faz | Onde mora |
+    |---|---|---|
+    | Escala ancorada | código sem defeito vale **8**, abaixo da barra, de propósito | `harsh-critic`, `phase-2`, `assets/contract.md` |
+    | `TO REACH 10:` | crítico nomeia a única mudança que levaria cada dimensão ao 10 | `harsh-critic` |
+    | Teste de materialidade | só conta o que muda comportamento, falha ou verificação; nome e gosto vão pra `NOTES` | `harsh-critic`, `phase-2` |
+    | Tier por nó | `gauntlet` itera até impressionar; `review` para em sem-defeito e manda o resto pra fila de polimento | `assets/contract.md`, `phase-2`, `phase-3` |
+
+    **O teste de materialidade é o que torna a barra alcançável.** Sempre dá pra implicar com
+    alguma coisa; sem ele nenhum crítico jamais fica impressionado, todo nó bate o teto de 5, e
+    o contador volta a ser o freio real — só que pelo lado caro.
+
+    **O tier é o que preserva code review sem preço de gauntlet.** Nó `review` continua tendo
+    crítico de contexto limpo, verificadores e veredito com `file:line`; ele só não é cobrado a
+    ficar excelente. Regra dura: **se todo nó é gauntlet, nenhum é** — você encareceu o loop
+    sem mirá-lo. E o tier é decidido na Fase 2, antes de existir código pra proteger, senão
+    vira desculpa retroativa.
+
+    **A fila de polimento não é descarte.** Vai pro integrador, que já roda e já edita, e o
+    crítico final enxerga a fila — item que sumiu calado é gap, não economia.
+
+    Custo estimado: 0% a +15% sobre a rodada de hoje, contra +61% da versão em que todo nó
+    iterava. Ainda **não medido** — ver a lista do que falta.
 11. **O pipeline inteiro e as fases avulsas coexistem.** `/sdd-gauntlet-loop` roda ponta a ponta;
     `commands/` tem uma fase por comando pra quando você quer aprovar no meio. Os comandos são
     finos de propósito: eles apontam pro `SKILL.md` e pra `references/` correspondente em vez de
@@ -156,9 +178,15 @@ Fechado em 30/08/2026:
 
 Falta:
 
+- [ ] **medir o custo do freio novo.** A decisão #10 foi escrita mas nunca rodou. Rode a
+      pipeline no mesmo alvo `ledger` e compare iterações por nó com a rodada de hoje
+      (T1=1, T2=1, T3=2, T4=1) e o total de chamadas de subagente (13) e tokens (~459k).
+      As duas perguntas: os nós `gauntlet` passam de uma iteração, e algum nó bate o teto de 5
+      por o crítico nunca se dar por satisfeito? Se o segundo acontecer, o teste de
+      materialidade está frouxo demais.
 - [ ] push (o `git init` e o primeiro commit já foram feitos; o nome do repositório remoto
       ainda não foi definido). André decidiu **não publicar antes de validar** — a validação
-      já aconteceu, a decisão do nome não.
+      da pipeline já aconteceu, a do freio novo não, e a decisão do nome também não.
 - [ ] conferir e apagar `_to_delete/_bundle.zip` (André pediu pra segurar até olhar o conteúdo)
 
 ## A primeira rodada real — 30/08/2026

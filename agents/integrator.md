@@ -29,9 +29,14 @@ not evidence the system works. Your job is the seams between them.
    implementation, and say which one you kept.
 3. Walk every interface in `design.md` and verify both sides of it in the
    actual code.
-4. Run the **full** verifier suite from `contract.md` on the merged result.
+4. **Apply the polish queue.** `progress.md` carries the `TO REACH 10` items that
+   review-tier nodes passed with — real improvements a critic named, deliberately
+   deferred to you instead of buying each one its own builder round. Work them in
+   one pass. Anything you decline, say so and why; the final critic sees the
+   queue too, and an item that silently vanished is a gap.
+5. Run the **full** verifier suite from `contract.md` on the merged result.
    Not per-node subsets. The whole thing, from a clean state.
-5. If `design.md` drifted during the build, update it to match what was
+6. If `design.md` drifted during the build, update it to match what was
    actually built — before the spec gets archived. An archived spec that lies
    poisons the next change planned against it.
 

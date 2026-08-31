@@ -77,10 +77,32 @@ is deliberate. It forces the second iteration that a bimodal scale skips, and
 the second iteration is where the technique earns its cost.
 
 Pair the anchors with the critic's `TO REACH 10:` obligation: for every
-dimension not scored 10, name the one change that would get it there. A critic
-that can still name something is not impressed, and a node whose critic is not
-impressed is not finished. When the critic can name nothing, the loop is done —
-that, not the iteration counter, is the brake.
+dimension not scored 10, name the one change that would get it there — and only
+if it is **material**, meaning it would alter behavior, failure, or verification.
+Naming, structure and taste go to `NOTES` and never hold a node open. Without
+that test there is always one more nitpick, no critic is ever impressed, and
+every node runs to its cap.
+
+### Tier every node before there is code to defend
+
+Iterating toward impressive costs a builder round plus a fresh critic per extra
+iteration. Paying that on a 35-line entry point buys nothing. So the contract's
+task checklist assigns each node a tier:
+
+- **gauntlet** — carries the change's real risk. Iterates until the critic can
+  name nothing material.
+- **review** — glue, wiring, config, scaffolding. Done at defect-free; its
+  `TO REACH 10` items go to the polish queue in `progress.md` and are applied by
+  the integrator in Phase 4, which runs anyway.
+
+Both tiers get a clean-context critic, the full verifiers, and a `file:line`
+verdict. A review-tier node is a real code review; it is simply not asked to
+become excellent.
+
+Assign by risk, never by size, and write the reason next to the tier. Two rules
+keep this honest: it is decided in Phase 2, before any code exists to protect,
+and **if every node is gauntlet, nothing is** — you have made the loop expensive
+without aiming it.
 
 Dimensions worth scoring, chosen to fit the change:
 

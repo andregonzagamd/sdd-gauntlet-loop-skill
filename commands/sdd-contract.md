@@ -24,7 +24,14 @@ Four sections, each one mechanically checkable or explicitly scored:
 - **VERIFIERS** — shell commands that must exit 0 (tests, typecheck, lint, build),
   plus any manual check written as a pass/fail statement.
 - **CRITIC RUBRIC** — the dimensions a critic scores, the minimum bar
-  (default 8.5/10), and the named reference standard being compared against.
+  (default 8.5/10) on an anchored scale where defect-free work scores 8, and the
+  named reference standard being compared against.
+- **TASK CHECKLIST** — every node tiered `gauntlet` (carries the change's real
+  risk; iterates until a critic can name no material improvement) or `review`
+  (glue and wiring; done at defect-free, improvements deferred to the
+  integrator). Assign by risk, never by size, and write the reason. Decide it
+  here, before any code exists to defend — and if every node is gauntlet,
+  nothing is.
 - **BOUNDARIES** — max iterations per node (default 5), max waves (default 4),
   forbidden actions, and what forces escalation to the human.
 

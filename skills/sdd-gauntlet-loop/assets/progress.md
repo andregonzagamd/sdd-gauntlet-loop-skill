@@ -31,6 +31,23 @@ Verdicts: `PLAN` · `PASS` · `FAIL` · `STALL` · `ESCALATE` · `INTEGRATE` · 
 
 ---
 
+## Polish queue
+
+Material improvements a critic named in `TO REACH 10:` on a **review-tier** node
+that passed. The node was done at defect-free; these were banked instead of
+buying each one its own builder round. The integrator applies the whole queue in
+one pass in Phase 4, and the final critic sees this list — so an item that
+quietly disappeared is a gap, not a saving.
+
+Nothing cosmetic belongs here. If it would not change behavior, failure, or
+verification, it was a `NOTES` item and it never reached this queue.
+
+| Node | Improvement named | Applied by integrator? |
+|---|---|---|
+| | | |
+
+---
+
 ## Open escalations
 
 | When | Node | Why it stopped | Decision needed from a human |
