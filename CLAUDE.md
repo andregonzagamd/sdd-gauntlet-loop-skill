@@ -200,10 +200,12 @@ Falta:
       As duas perguntas: os nós `gauntlet` passam de uma iteração, e algum nó bate o teto de 5
       por o crítico nunca se dar por satisfeito? Se o segundo acontecer, o teste de
       materialidade está frouxo demais.
-- [ ] push (o `git init` e o primeiro commit já foram feitos; o nome do repositório remoto
-      ainda não foi definido). André decidiu **não publicar antes de validar** — a validação
-      da pipeline já aconteceu, a do freio novo não, e a decisão do nome também não.
-- [ ] conferir e apagar `_to_delete/_bundle.zip` (André pediu pra segurar até olhar o conteúdo)
+- [x] `_to_delete/` apagada em 30/08/2026 — era o snapshot da entrega original, 22 arquivos,
+      todos presentes no repo em versão mais nova e agora sob git. Nada exclusivo.
+- [x] push: repositório `andregonzagamd/sdd-gauntlet-loop-skill`, criado **privado**. A regra do
+      André era não publicar antes de validar; a pipeline foi validada, o freio da decisão #10
+      não. **Deixe privado até a medição rodar.** Pra abrir depois:
+      `gh repo edit andregonzagamd/sdd-gauntlet-loop-skill --visibility public`
 
 ## A primeira rodada real — 30/08/2026
 
