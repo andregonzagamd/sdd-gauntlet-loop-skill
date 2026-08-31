@@ -33,16 +33,27 @@ produced, warts included. The two known warts are the point:
 
 | Node | What is missing | Found by |
 |---|---|---|
-| `src/money.js` | no test for `centsToDisplay(NaN)` or `Infinity`, though `design.md:95` names both | Haiku/prompt magro ✓ · Sonnet/prompt longo ✗ · Sonnet/template completo ✓ |
-| `src/report.js` | no test for a zero category total, a negative month total, or `formatReport({months: [], grandTotalCents: N})` | Sonnet/prompt longo ✓ · Haiku/prompt magro ✗ · Sonnet/template completo ✗ |
+| `src/money.js` | no test for `centsToDisplay(NaN)` or `Infinity`, though `design.md:95` names both | Haiku/magro ✓ · Sonnet/longo ✗ · Sonnet/template ✓ · Haiku/template ✓ |
+| `src/report.js` | no test for a zero category total, a negative month total, or `formatReport({months: [], grandTotalCents: N})` | Sonnet/longo ✓ · Haiku/magro ✗ · Sonnet/template ✗ · Haiku/template ✗ |
 
 Those two gaps are the measuring instrument. A critic that finds them is working;
 one that closes the node as finished is not. Fixing them destroys the bench.
 
-Three runs in, **no single critic has found both**, and the one dispatched with the
-full `dispatch-prompts.md` template ran the `report.js` gap, saw correct behavior
-and closed the node on it. That is the evidence behind decision #11 (two critics on
-`PASS-FINISHED`) and behind the rule that a critic's own probe is not coverage.
+Four critics in, **no single one has found both.** Read the rows sideways and the
+bench has already answered two design questions:
+
+- The `money.js` row flips with the **prompt**, not the model: the thin prompt and
+  the full template find it, the long ad-hoc one did not. The `report.js` item has
+  been found exactly once, by the one prompt whose probe list differed — never by a
+  different model running the same probes. That killed the first version of decision
+  #11 ("same prompt, cheaper model"), which found zero new items across both nodes.
+- The critic dispatched with the full template **ran** the `report.js` gap, saw
+  correct behavior and closed the node on it. Hence the rule that a critic's own
+  probe is not coverage.
+
+The `report.js` item is also the reason generator 1b exists: its cases are implied
+by a pinned value domain ("may be negative") rather than named as cases, so the
+design-versus-`done when` crossing walks past them.
 
 The spec that produced it is in `specs/archive/ledger-core/`, and `progress.md` is
 the full append-only log of the run — 21 events, including the one node that

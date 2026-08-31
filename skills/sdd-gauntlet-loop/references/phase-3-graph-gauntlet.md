@@ -57,7 +57,7 @@ while iteration <= max_iterations:
     if not verdict.improvements:           # all CLEAR — a candidate finish, not a finish
         if node.tier == "review":
             mark task done in tasks.md; break
-        second = critic(diff)              # fresh context, cheaper model, blind to the first
+        second = critic(diff, probes=unused_generators)   # fresh context, blind to the first
         append_to_progress(wave, node, iteration, second, confirming=True)
         if not second.open_items:
             mark task done in tasks.md; break
@@ -92,24 +92,29 @@ items. The node is finished only when both return zero.
 
 Three constraints make it worth the call:
 
+- **Different probes, not a different model.** This is the one that was measured
+  and got the answer backwards from what everyone expects. Running the identical
+  prompt again on a second model found **nothing new on either node** — where the
+  first critic was blind, its twin was blind in the same place. What varies a
+  critic's findings is what it was pointed at. So the second dispatch keeps the
+  contract, the design and the task verbatim and swaps in the probe generators
+  the first prompt did not use.
 - **The second critic must be blind to the first.** Not its verdict, not its
   probes, not the fact that it exists. A confirming critic that knows a peer
   already closed the node is a rubber stamp with extra steps.
-- **Use a cheaper model for it.** Measured, the cheap model found a real item the
-  expensive one missed, and vice versa — neither dominated. Two cheap critics
-  found strictly more than one expensive one at a lower price.
 - **It runs once per node, on the last iteration only.** Every earlier round
   already has open items, and open items do not need confirming.
 
-Why this and not simply a better prompt: it was tested. The same node set was run
-against a single critic dispatched with the full [`dispatch-prompts.md`](dispatch-prompts.md)
-template, named probes and all. It found the real item on one node and closed the
-other as finished — missing an item a different single critic had found. Sharper
-aiming raised the floor; it did not close the blind spot, because the blind spot
-is not in the prompt. Two independent looks close it.
+Why not simply a better prompt: that was tested too. A single critic dispatched
+with the full [`dispatch-prompts.md`](dispatch-prompts.md) template found the real
+item on one node and closed the other as finished, missing an item another critic
+had found with a *different* probe list. Sharper aiming raised the floor and did
+not close the blind spot — but neither did a second opinion on the same aim. The
+blind spot lives in the probe list, which is why the fix is to vary it.
 
-The cost is one extra call per finished node, on a cheaper model — measured at
-roughly the price of the single expensive critic it replaces.
+The cost is one extra call per finished node. Spend it where the first prompt's
+generators structurally cannot reach — a probe list that repeats the first one is
+the one configuration measured to be worth nothing.
 
 `stalled(verdict, previous)` replaces the old score-improvement rule: a node is stalled when two consecutive rounds leave `OPEN` unchanged, or leave the same item open. That is an observable fact about named items, not a trend read off a number — and it is why the critic reports `OPEN` as a count.
 

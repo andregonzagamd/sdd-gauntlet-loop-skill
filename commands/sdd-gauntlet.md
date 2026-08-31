@@ -42,8 +42,9 @@ passed — do not rebuild them.
      `progress.md` for the integrator, and move on.
 
    On a gauntlet-tier PASS with **zero** open items, you have a candidate finish,
-   not a finish: confirm it with a second `harsh-critic`, fresh context, cheaper
-   model, blind to the first — same prompt, no mention that a peer already ran.
+   not a finish: confirm it with a second `harsh-critic`, fresh context, blind to
+   the first, and aimed at **different probes** — same contract and task, a probe
+   list the first prompt did not use. Repeating the same prompt finds nothing.
    Both at zero or the node keeps going, on the union of their items.
 
    The iteration cap and the stall rule are safety valves for when every

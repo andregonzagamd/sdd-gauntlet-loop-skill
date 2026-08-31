@@ -88,7 +88,7 @@ Read `AGENTS.md`, `contract.md`, `progress.md` before every wave — state comes
 2. **Fan out.** Dispatch one `builder` subagent per node, in parallel across the wave. Each gets: the constitution, the contract, its task, and the files it may touch — nothing else. If two nodes must touch the same file, run them in isolated worktrees or serialize them.
 3. **Run the gauntlet.** For each finished node, dispatch a `harsh-critic` subagent with a clean context. It receives `contract.md` and the diff, never the builder's narrative. It runs the verifiers and closes every rubric dimension, each with `file:line` or the evidence behind it.
 4. **Loop, bounded.** Any `GAP` returns to the builder verbatim, re-critiqued by a *fresh* critic. `IMPROVEMENT` buys another round on a `gauntlet` node; on a `review` node it goes to the polish queue and the node is done. Escalate at the iteration cap, or when two rounds leave the same items open.
-5. **Confirm the finish.** `PASS-FINISHED` is the verdict whose error is silent, so a `gauntlet` node needs **two** clean-context critics, the second blind to the first. It finishes only if both return zero open items; otherwise their items union.
+5. **Confirm the finish.** `PASS-FINISHED` is the verdict whose error is silent, so a `gauntlet` node needs **two** clean-context critics — the second blind to the first and aimed at **different probes**, since a repeated probe list finds nothing new. Both at zero, or their items union and the node continues.
 6. **Persist.** After every critic verdict, append to `progress.md`: wave, node, iteration, verdict, open count, items, files changed. One line per event, newest last.
 
 Waves and the stall protocol: `references/phase-3-graph-gauntlet.md`. **Prompts and probes: `references/dispatch-prompts.md` — read before dispatching.**
@@ -118,10 +118,9 @@ Stop and hand back to the human when any of these is true:
 
 ## Anti-patterns
 
-- A builder marking its own work as passing.
 - A critic that edits code. Critics are read-only and stay that way.
 - Running a wave with nodes that write the same file.
 - Loop state kept in the conversation instead of `progress.md`.
-- **A dimension closed on a probe the critic ran itself.** The probe dies with the context; the suite survives. An uncovered case that happens to work is the finding, not the evidence.
+- **A dimension closed on a probe the critic ran itself.** The probe dies with the context; the suite survives. An uncovered case that works is the finding, not the evidence.
 - **Treating "no defects found" as "impressive".** They are different questions, and only the second one ends the loop.
 - Committing secrets, keys, or `.env` contents — never, under any framing.

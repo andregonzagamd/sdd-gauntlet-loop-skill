@@ -140,13 +140,19 @@ measurements/ledger/                  # a bancada: alvo congelado das medições
     mais barato, e o nó fecha só se os dois derem zero. Senão, união dos itens. Vale igual pro
     crítico final da mudança inteira, onde o erro é mais caro ainda.
 
-    Medido três vezes, e o template completo não substitui isso: com as sondas nomeadas, um
-    crítico achou o item de um nó e fechou o outro. A cegueira é do modelo, não da mira. Custo:
-    uma chamada extra por nó terminado, na última iteração só — ≈ o preço do crítico caro que ela
-    substitui.
+    **O que decide o segundo crítico é a sonda, não o modelo — e isso foi medido do jeito
+    caro, errando primeiro.** A versão original desta decisão dizia "prompt idêntico, modelo mais
+    barato". Rodada, deu **zero itens novos nos dois nós**: onde o primeiro crítico era cego, o
+    gêmeo era cego no mesmo lugar; onde ele enxergava, o segundo só concordava. Dois agentes com a
+    mesma lista de sondas são uma lista de sondas.
 
-    **Crítico confirmador recebe o prompt idêntico.** Não um mais curto, não um "confirme isto".
-    Confirmador que sabe que um par já fechou o nó vira carimbo.
+    Então o confirmador mantém contrato, design e task verbatim e **troca o passo 2** pelos
+    geradores que o primeiro prompt não usou — de preferência os que alcançam casos que o primeiro
+    conjunto estruturalmente não alcança. Continua **cego ao primeiro**: não o veredito, não as
+    sondas, nem que ele existiu. Confirmador que sabe que um par já fechou o nó vira carimbo.
+
+    Custo: uma chamada extra por nó terminado, na última iteração só. Gaste-a onde o primeiro
+    prompt não chega — repetir a mesma lista é a única configuração medida como valendo nada.
 
 12. **O pipeline inteiro e as fases avulsas coexistem.** `/sdd-gauntlet-loop` roda ponta a ponta;
     `commands/` tem uma fase por comando pra quando você quer aprovar no meio. Os comandos são
@@ -231,9 +237,10 @@ Falta:
       três medições, cada peça testada, e as duas que falharam viraram correção — a nota saiu, os
       dois críticos entraram. **A condição foi cumprida; abrir ou não é decisão do André.**
       `gh repo edit andregonzagamd/sdd-gauntlet-loop-skill --visibility public`
-- [ ] a decisão #11 está escrita, não medida. O que foi medido é que **um** crítico erra; que
-      **dois** acertam vem de n=2 da segunda medição. A próxima medição óbvia é rodar o par
-      cego nos mesmos dois nós e ver se a união pega os dois itens conhecidos. 2 chamadas.
+- [x] o par cego rodou em 31/08/2026 e **reprovou a decisão #11 como estava escrita** — ver a
+      quarta medição. A regra foi corrigida: sonda diferente, não modelo diferente.
+- [ ] falta medir a forma corrigida: 1 chamada, o prompt do `report.js` com o gerador 1b no
+      lugar do passo 2. Se achar os três casos, a decisão #11 fecha.
 
 ## A primeira rodada real — 30/08/2026
 
@@ -410,6 +417,44 @@ Isso não estava escrito em lugar nenhum — os dois comportamentos eram compat�
 É a correção mais barata que saiu de qualquer medição até aqui, e é independente da decisão #11.
 
 Read-only conferido de novo por `git status` depois das duas chamadas: nada escrito.
+
+### Quarta medição — o par cego, e a decisão #11 quase nasceu errada. 31/08/2026
+
+A decisão #11 tinha acabado de ser escrita a partir da terceira medição e ainda não tinha sido
+testada como regra. Desenho: os **mesmos dois prompts, palavra por palavra**, trocando só o
+modelo pra Haiku — que é exatamente o que a regra mandava fazer. 108k tokens, 2 chamadas (mais 2
+perdidas por erro de conexão da API, redespachadas).
+
+| Nó | Sonnet, template completo | Haiku, prompt idêntico | O par ganhou algo? |
+|---|---|---|---|
+| `money.js` | `FAIL`, achou o item | `PASS-UNFINISHED`, **achou o mesmo item** | não — concordância |
+| `report.js` | `PASS-FINISHED`, perdeu | `PASS-FINISHED`, **perdeu o mesmo** | não — cegueira idêntica |
+
+**Zero itens novos em dois nós.** O segundo crítico não é uma segunda opinião quando recebe a
+mesma lista de sondas — é a mesma opinião pronunciada de novo. Onde o primeiro enxergava, o
+segundo concordou; onde era cego, era cego no mesmo lugar.
+
+Vale notar a discordância que **não** importou: no `money.js` o Sonnet chamou de `GAP` e o Haiku
+de `IMPROVEMENT`. Vereditos diferentes, efeito idêntico no loop — os itens voltam pro builder. A
+severidade não separou nada; o conteúdo era o mesmo.
+
+**A conclusão inverte a da terceira medição.** Eu tinha lido "um crítico erra, logo use dois". O
+certo é: **a variância vem da sonda, não do modelo.** A única vez que alguém achou o item do
+`report.js` em quatro tentativas foi na segunda medição, com um prompt *diferente* — não com um
+modelo diferente. A decisão #11 foi reescrita: o confirmador troca o passo 2, não o modelo.
+
+**E o ponto cego tem forma diagnosticável, o que virou gerador novo.** O gerador nº 1 (cruzar o
+design contra o `done when`) achou o item do `money.js` nas duas vezes, porque o design *nomeia*
+`NaN` e `Infinity` numa cláusula "Throws if". O item do `report.js` nunca é nomeado como caso: o
+design pina um **domínio** — "amountCents may be negative" — e os estados que esse domínio produz
+três agregações abaixo (total zero, mês negativo, coleção vazia com total não-zero) não estão
+escritos em lugar nenhum. O cruzamento passa reto. Virou o gerador **1b** em
+`dispatch-prompts.md`: cruze cada domínio pinado contra cada operação que o consome, e pergunte o
+que a operação pode *produzir* na borda do domínio — não só o que ela recebe.
+
+**Ainda não medido, e está escrito como não-medido:** que um confirmador com sondas diferentes
+acha o que o primeiro perdeu. O experimento é 1 chamada — o prompt do `report.js` com o gerador
+1b no lugar do passo 2. Se achar os três casos, a decisão #11 fecha na forma nova.
 
 ### O teste de retomada — `progress.md` lido por contexto limpo. 31/08/2026
 

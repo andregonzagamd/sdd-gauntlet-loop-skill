@@ -212,6 +212,20 @@ gap was never the behavior, it was that nothing but this critic will ever check
 it. On a measured run a critic did exactly that, in writing, and finished a node
 with a real item open.
 
+**1b. Cross each pinned value domain against every operation that consumes it.**
+Generator 1 has a measured blind spot: it only reaches cases the design names *as
+cases*. When the design pins a **domain** instead — "may be negative", "may be
+zero", "one or more" — the states that domain produces downstream are named
+nowhere, so the crossing walks right past them. Four critics closed a node on
+exactly this shape: the design said an amount may be negative, three aggregations
+consumed those amounts, and nobody asked what a sum of them can be. The answer
+was zero, or negative, or an empty collection with a non-zero total — three real
+untested branches, invisible to generator 1 because no sentence ever named them.
+
+So: list every value domain the design pins. List every operation that reads one.
+Cross them, and ask what the operation can *produce* at each edge of the domain,
+not just what it is handed. Then check the suite for each.
+
 **2. The source of truth for the test's own data.** If the task says "the rows
 from `fixtures/x.csv`", tell the critic to open the fixture and compare the test's
 data against it **field by field**. A test whose data merely *aggregates* to the
@@ -246,13 +260,21 @@ for the repo.
 ### The confirming critic
 
 When a `gauntlet` node comes back with zero open items, a second critic confirms
-it before the node is finished. Dispatch it with **the same prompt, unchanged**.
+it before the node is finished. Two rules, and the first one was learned the
+expensive way.
 
-Not a shorter one, not a "double-check this" one, and above all not one that
-mentions the first critic, its verdict or its probes. The moment a confirming
-critic knows a peer already closed the node, it starts looking for reasons to
-agree, and you have paid for a rubber stamp. Send it in blind, on a cheaper
-model, and let it do the same work from scratch.
+**Give it different probes.** Not the same prompt on a different model — that was
+measured, twice, on two nodes, and it found *nothing* the first critic had not
+already found. Where the first critic was blind, its twin was blind in the same
+place; where it saw, the second only agreed. Two agents running the same probe
+list are one probe list. What varies a critic's findings is what it was told to
+go look at, so the second dispatch keeps the contract, the design and the task
+verbatim and **replaces step 2 with the generators the first prompt did not
+use** — start from the ones that reach cases the first set structurally cannot.
+
+**Keep it blind.** Not the first critic's verdict, not its probes, not the fact
+that it exists. A confirming critic that knows a peer already closed the node
+starts looking for reasons to agree, and you have paid for a rubber stamp.
 
 Everything the first critic produced stays with you. Union its items with the
 second's, and hand the union to the builder.

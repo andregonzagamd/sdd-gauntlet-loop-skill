@@ -131,7 +131,8 @@ has no other way to know where the node was allowed to write.
 **Integration:** [ ] full verifier suite on the merged change — open: __
 
 A `gauntlet` node's box is checked by **two** critics agreeing on zero open items,
-the second dispatched blind to the first. So is the final whole-change verdict.
+the second dispatched blind to the first and aimed at probes the first did not
+run. So is the final whole-change verdict.
 
 ---
 
