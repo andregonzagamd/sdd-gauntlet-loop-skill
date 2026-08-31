@@ -132,7 +132,23 @@ measurements/ledger/                  # a bancada: alvo congelado das medições
     a contagem de itens abertos não cai, ou o mesmo item continua aberto.
 
     Custo medido: 1 nó em 4 iteraria, ≈ +8%.
-11. **O pipeline inteiro e as fases avulsas coexistem.** `/sdd-gauntlet-loop` roda ponta a ponta;
+11. **`PASS-FINISHED` custa dois críticos; todo o resto custa um.** `FAIL` e `PASS-UNFINISHED` se
+    autocorrigem — compram outra rodada, e crítico que inventa item custa iteração, não correção.
+    `PASS-FINISHED` é o único veredito cujo erro é **silencioso**: ninguém olha de novo. Então nó
+    `gauntlet` que volta com zero itens abertos recebe um segundo crítico de contexto limpo,
+    **cego ao primeiro** — não o veredito dele, não as sondas, nem que ele existiu — em modelo
+    mais barato, e o nó fecha só se os dois derem zero. Senão, união dos itens. Vale igual pro
+    crítico final da mudança inteira, onde o erro é mais caro ainda.
+
+    Medido três vezes, e o template completo não substitui isso: com as sondas nomeadas, um
+    crítico achou o item de um nó e fechou o outro. A cegueira é do modelo, não da mira. Custo:
+    uma chamada extra por nó terminado, na última iteração só — ≈ o preço do crítico caro que ela
+    substitui.
+
+    **Crítico confirmador recebe o prompt idêntico.** Não um mais curto, não um "confirme isto".
+    Confirmador que sabe que um par já fechou o nó vira carimbo.
+
+12. **O pipeline inteiro e as fases avulsas coexistem.** `/sdd-gauntlet-loop` roda ponta a ponta;
     `commands/` tem uma fase por comando pra quando você quer aprovar no meio. Os comandos são
     finos de propósito: eles apontam pro `SKILL.md` e pra `references/` correspondente em vez de
     reexplicar a fase. Regra dura — **nenhuma regra da pipeline mora só num comando.**
@@ -211,9 +227,13 @@ Falta:
 - [x] `_to_delete/` apagada em 30/08/2026 — era o snapshot da entrega original, 22 arquivos,
       todos presentes no repo em versão mais nova e agora sob git. Nada exclusivo.
 - [x] push: repositório `andregonzagamd/sdd-gauntlet-loop-skill`, criado **privado**. A regra do
-      André era não publicar antes de validar; a pipeline foi validada, o freio da decisão #10
-      não. **Deixe privado até a medição rodar.** Pra abrir depois:
+      André era não publicar antes de validar. Em 31/08/2026 o freio da decisão #10 fechou:
+      três medições, cada peça testada, e as duas que falharam viraram correção — a nota saiu, os
+      dois críticos entraram. **A condição foi cumprida; abrir ou não é decisão do André.**
       `gh repo edit andregonzagamd/sdd-gauntlet-loop-skill --visibility public`
+- [ ] a decisão #11 está escrita, não medida. O que foi medido é que **um** crítico erra; que
+      **dois** acertam vem de n=2 da segunda medição. A próxima medição óbvia é rodar o par
+      cego nos mesmos dois nós e ver se a união pega os dois itens conhecidos. 2 chamadas.
 
 ## A primeira rodada real — 30/08/2026
 
@@ -326,21 +346,11 @@ caminho de erro explicitamente — a rúbrica manda testar todo caminho nomeado.
 Custo: 66k (Haiku) contra 67k (Sonnet) em **tokens** — a economia é no preço por token, não no
 volume. Haiku foi mais lento (190s contra 73s no `money.js`).
 
-**Proposta em aberto, não implementada:** para o veredito `PASS-FINISHED` — o arriscado, porque
-errar ali é silencioso — usar **dois críticos baratos em vez de um caro**, unindo os itens
-abertos dos dois. Nesta amostra isso acharia 2 itens reais em vez de 1, pelo mesmo volume de
-tokens e preço menor. Evidência: n=2, um nó cada. Suficiente pra propor, não pra fechar.
-
-**O experimento que decide isso (passo 2, não rodado):** agora que `dispatch-prompts.md` existe,
-rode **um** crítico usando o template completo, com as sondas nomeadas, nos mesmos dois nós.
-
-- Se ele achar **os dois** itens (`NaN` no `money.js` e os três casos no `report.js`), a cegueira
-  era falta de sonda nomeada e não falta de segunda opinião. A proposta dos dois críticos morre,
-  e você economiza uma chamada por nó pra sempre.
-- Se ainda perder um, a cegueira é do modelo, e aí dois críticos baratos é a resposta certa.
-
-Custo: 2 chamadas. Qualquer um dos dois resultados fecha uma decisão de design em aberto — é o
-melhor retorno por token que sobrou no projeto.
+**Proposta, na época em aberto:** para o veredito `PASS-FINISHED` — o arriscado, porque errar
+ali é silencioso — usar **dois críticos baratos em vez de um caro**, unindo os itens abertos dos
+dois. Nesta amostra isso acharia 2 itens reais em vez de 1, pelo mesmo volume de tokens e preço
+menor. Evidência: n=2, um nó cada. Suficiente pra propor, não pra fechar. **Fechada na terceira
+medição, abaixo — a proposta venceu.**
 
 ### `dispatch-prompts.md` — a referência que a medição pediu
 
@@ -367,6 +377,72 @@ ramo `NaN` e um de estado vazio, ambos nomeados no design, nenhum listado no `do
 nenhum testado. Esse gerador sozinho teria pego os dois.
 
 `phase-3` caiu de 194 pra 112 linhas: conteúdo movido, não duplicado (decisão #4).
+
+### Terceira medição — o template completo não fecha a cegueira. 31/08/2026
+
+O experimento que estava marcado como "o melhor retorno por token que sobrou no projeto": **um**
+crítico por nó, Sonnet, com o template completo de `dispatch-prompts.md` — caminho absoluto,
+task verbatim, rúbrica, sondas nomeadas, os oito geradores aplicados. Mesmos dois nós da segunda
+medição. Nenhum item do `measurements/README.md` foi colado nos prompts. 91k tokens, 2 chamadas.
+
+| Nó | Veredito | O item conhecido |
+|---|---|---|
+| `money.js` | **FAIL**, open=1 | **achou** — `design.md:94-95` nomeia `NaN`/`Infinity`, `test/money.test.js` não tem teste. E foi além: nenhuma das famílias de rejeição (separador de milhar, notação científica, `+`/`$`, sinal duplo) tem teste |
+| `report.js` | **PASS-FINISHED**, open=0 | **perdeu** |
+
+**O template levanta o piso e não fecha o ponto cego.** O crítico do `money.js` achou mais do que
+qualquer crítico anterior tinha achado naquele nó. O do `report.js`, com o mesmo prompt, o mesmo
+modelo e o mesmo gerador, fechou o nó. A cegueira não estava na mira — está no modelo. **Os dois
+críticos baratos no `PASS-FINISHED` viram regra** (decisão #11).
+
+**E o modo de falha é diagnosticável, o que vale mais que o veredito.** O crítico do `report.js`
+*rodou* o caso descoberto — ele escreve, na dimensão Completeness, que verificou "inputs the tests
+never construct (scrambled rows, **zero-sum categories**)" e obteve resultado correto. Ele
+executou exatamente a lacuna e a usou como **evidência de `CLEAR`**. O do `money.js` fez a
+distinção oposta, explicitamente: *"the code is right, but every one of these paths is unverified
+by the suite."*
+
+> **A sonda do crítico não é cobertura.** Ela morre junto com o contexto dele; a suíte é o que
+> fica. Caso que só o crítico rodou fecha em `IMPROVEMENT` com o teste faltando, nunca em `CLEAR`.
+
+Isso não estava escrito em lugar nenhum — os dois comportamentos eram compatíveis com o
+`harsh-critic.md`. Agora está, em três lugares: o agente, a rúbrica do template e o gerador nº 1.
+É a correção mais barata que saiu de qualquer medição até aqui, e é independente da decisão #11.
+
+Read-only conferido de novo por `git status` depois das duas chamadas: nada escrito.
+
+### O teste de retomada — `progress.md` lido por contexto limpo. 31/08/2026
+
+A afirmação sob teste é a decisão #7: *"`progress.md` é append-only — é o que permite uma sessão
+nova retomar o loop sem repetir o que já falhou."* Nunca tinha sido testada; foi escrita como
+justificativa de design.
+
+Desenho: um subagente sem nenhum contexto, recebendo **só o caminho** de `measurements/ledger` e
+proibido de abrir qualquer coisa além de `AGENTS.md`, `contract.md` e `progress.md` — nada de
+`src/`, `specs/`, fixture ou `git log`. Quatro perguntas: em que estado está a mudança, quais nós
+passaram, qual falhou e por quê, o que fazer em seguida.
+
+**Passou, e passou inteiro.** Reconstruiu que `ledger-core` está fechada e arquivada; os quatro
+nós e o que cada um é; que o T3 reprovou na iteração 1 por **dado de teste fabricado** — com o
+`file:line`, com a observação de que os 3 testes passavam e o exit era 0, e com a leitura correta
+de que a correção tocou só o teste, logo o código de produção nunca esteve errado. Achou sozinho
+o `BOUNDARY` do T4 e entendeu que o defeito era do scaffold, não do builder. A memória em disco
+funciona.
+
+**O que ele não conseguiu reconstruir é o achado.** Treze itens; os que viraram correção:
+
+| Faltou | Onde deveria estar |
+|---|---|
+| a lista `files:` de cada nó — o contrato **proíbe** sair dela e **não a define** | `contract.md` |
+| o bloco de stdout pinado e as strings de erro exatas: o contrato se diz "a única fonte de verdade" e delega ao `design.md` | `contract.md` |
+| o SHA do commit: o log flutua solto do repositório e não responde "isso ainda é verdade?" | linha `ARCHIVE` do `progress.md` |
+| quem autorizou o override do `package.json` — "resolvido pelo orquestrador", com a seção de premissas sem aprovação ainda em `[none]` | `progress.md`, nas duas seções |
+| o cabeçalho `## Change: [change-id]` continua placeholder com a mudança concluída logo abaixo | `progress.md` |
+
+Vale registrar o que **não** era lacuna: metade da lista dele (`min-dim` indefinido, `BOUNDARY`
+fora do vocabulário, formato `<score>`) já tinha sido corrigida no template de `assets/` pela
+decisão #10. A bancada carrega a cópia velha porque está congelada. Se você for reler a lista
+crua algum dia, confira contra `assets/`, não contra `measurements/ledger/`.
 
 ### Atrito conhecido, ainda não resolvido
 

@@ -8,6 +8,13 @@
 The single source of truth for both builders and critics. Anything not written
 here will not be built and will not be enforced.
 
+That is a claim this file has to earn. **Every literal the rubric grades against
+lives here, or is cited here by file and section** — the pinned output, the exact
+error strings, the signatures, the `files:` list each node is fenced into. A
+contract that forbids touching "the node's declared `files:` list" while the list
+itself is in another document is enforcing a boundary it never defined, and the
+critic reading only this file cannot check it.
+
 ---
 
 ## OBJECTIVE
@@ -70,7 +77,7 @@ for when that state never arrives; hitting one is an escalation, not a finish.
 | Design fidelity | did the builder quietly change an interface or decision from `design.md`? |
 | Failure behavior | does every error path named in the design exist, behave as pinned, and have a test that triggers it? |
 | Codebase fit | does this read like whoever wrote the rest of the repo wrote it? |
-| Test integrity | do tests assert exact values from the design, rather than nothing, a mock, or the implementation itself? |
+| Test integrity | do tests assert exact values from the design, rather than nothing, a mock, or the implementation itself? A case only the critic's own probe ever exercised is untested — that is a finding, not evidence. |
 | Reference comparison | held next to [the named reference standard], where does it fall short? |
 
 ---
@@ -90,6 +97,7 @@ for when that state never arrives; hitting one is an escalation, not a finish.
 - deploy, or call a paid/external API not named in `design.md`
 - disable, skip, or weaken a test to make the suite pass
 - mark a node passed on the builder's own say-so
+- touch a file outside the node's declared `files:` list — stop and report instead
 
 ---
 
@@ -112,11 +120,18 @@ gauntlet, nothing is: you have just made the loop expensive without aiming it.
 Tiering it now, before there is code to defend, is what stops this from becoming
 a retroactive excuse for mediocre work.
 
-- [ ] T1 — [task] — tier: [gauntlet|review] — [why] — open: __
-- [ ] T2 — [task] — tier: [gauntlet|review] — [why] — open: __
-- [ ] T3 — [task] — tier: [gauntlet|review] — [why] — open: __
+Each line carries the node's `files:` list, copied from `tasks.md`. That list is
+the fence the boundary below refers to, and a critic that only reads this file
+has no other way to know where the node was allowed to write.
+
+- [ ] T1 — [task] — tier: [gauntlet|review] — [why] — files: [] — open: __
+- [ ] T2 — [task] — tier: [gauntlet|review] — [why] — files: [] — open: __
+- [ ] T3 — [task] — tier: [gauntlet|review] — [why] — files: [] — open: __
 
 **Integration:** [ ] full verifier suite on the merged change — open: __
+
+A `gauntlet` node's box is checked by **two** critics agreeing on zero open items,
+the second dispatched blind to the first. So is the final whole-change verdict.
 
 ---
 
