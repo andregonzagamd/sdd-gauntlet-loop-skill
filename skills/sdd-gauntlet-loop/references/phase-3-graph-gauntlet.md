@@ -54,8 +54,15 @@ while iteration <= max_iterations:
         builder(items=verdict.gaps)        # verbatim, always
         iteration += 1; continue
 
-    if not verdict.improvements:           # all CLEAR — finished
-        mark task done in tasks.md; break
+    if not verdict.improvements:           # all CLEAR — a candidate finish, not a finish
+        if node.tier == "review":
+            mark task done in tasks.md; break
+        second = critic(diff)              # fresh context, cheaper model, blind to the first
+        append_to_progress(wave, node, iteration, second, confirming=True)
+        if not second.open_items:
+            mark task done in tasks.md; break
+        verdict = union(verdict, second)   # the second critic's items are now the node's
+        # falls through into the GAP / IMPROVEMENT branches above, same rules
 
     # works, and not finished: material improvements remain
     if node.tier == "gauntlet":
@@ -71,6 +78,38 @@ else:
 ```
 
 **The brake is every dimension closing `CLEAR`** — the critic produced, for each one, the command, probe or comparison that closes it, and could name no material change left. A verdict with `IMPROVEMENT` still on it is a node that works and is not finished.
+
+## Confirming a finish — two critics, not one
+
+`FAIL` and `PASS-UNFINISHED` are self-correcting: they buy another round, and a
+critic that invents an item costs you iterations but not correctness.
+`PASS-FINISHED` is the only verdict whose error is **silent** — nobody looks
+again. So it is the one verdict that is not taken on a single agent's word.
+
+When a `gauntlet` node comes back with zero open items, dispatch a second
+clean-context critic on the same node, and take the **union** of both critics'
+items. The node is finished only when both return zero.
+
+Three constraints make it worth the call:
+
+- **The second critic must be blind to the first.** Not its verdict, not its
+  probes, not the fact that it exists. A confirming critic that knows a peer
+  already closed the node is a rubber stamp with extra steps.
+- **Use a cheaper model for it.** Measured, the cheap model found a real item the
+  expensive one missed, and vice versa — neither dominated. Two cheap critics
+  found strictly more than one expensive one at a lower price.
+- **It runs once per node, on the last iteration only.** Every earlier round
+  already has open items, and open items do not need confirming.
+
+Why this and not simply a better prompt: it was tested. The same node set was run
+against a single critic dispatched with the full [`dispatch-prompts.md`](dispatch-prompts.md)
+template, named probes and all. It found the real item on one node and closed the
+other as finished — missing an item a different single critic had found. Sharper
+aiming raised the floor; it did not close the blind spot, because the blind spot
+is not in the prompt. Two independent looks close it.
+
+The cost is one extra call per finished node, on a cheaper model — measured at
+roughly the price of the single expensive critic it replaces.
 
 `stalled(verdict, previous)` replaces the old score-improvement rule: a node is stalled when two consecutive rounds leave `OPEN` unchanged, or leave the same item open. That is an observable fact about named items, not a trend read off a number — and it is why the critic reports `OPEN` as a count.
 
@@ -105,6 +144,7 @@ Append-only. One event per line, newest last, never rewritten:
 2026-08-30T14:11Z  wave=1  node=T1  iter=1  FAIL             open=2  gap="no test for expired token (auth.ts:88)"
 2026-08-30T14:19Z  wave=1  node=T1  iter=2  PASS-UNFINISHED  open=1  improvement="refresh path unverified: no probe exists (auth.ts:104)"
 2026-08-30T14:26Z  wave=1  node=T1  iter=3  PASS-FINISHED    open=0  files=[src/api/auth.ts, src/api/auth.test.ts]
+2026-08-30T14:29Z  wave=1  node=T1  iter=3  CONFIRM          open=0  second critic (haiku, blind to the first) agrees; node finished
 2026-08-30T14:20Z  wave=1  node=T2  iter=1  PASS-FINISHED    open=0  files=[src/db/schema.ts]
 2026-08-30T14:41Z  wave=1  node=T3  iter=5  STALL            open=2  escalated: same 2 items open since iter=3; design.md silent on refresh-token rotation
 ```

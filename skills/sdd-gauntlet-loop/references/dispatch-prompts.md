@@ -199,6 +199,19 @@ item on a run, and both misses were exactly this shape — a `NaN` branch and an
 empty-state branch, each named in the design, neither listed in `done when`,
 neither tested.
 
+Make the crossing an *output*, not a habit: tell the critic to write out both
+lists and their set difference. A critic asked for the conclusion reports what it
+noticed; a critic asked for the two lists has to enumerate before it can conclude.
+Measured, that is the difference between finding the untested branch and closing
+the node.
+
+And say what to do with the result, because it is counter-intuitive: **a probe
+that passes is a finding.** A critic that runs the uncovered case, sees correct
+behavior and closes the dimension has confirmed the code and lost the point — the
+gap was never the behavior, it was that nothing but this critic will ever check
+it. On a measured run a critic did exactly that, in writing, and finished a node
+with a real item open.
+
 **2. The source of truth for the test's own data.** If the task says "the rows
 from `fixtures/x.csv`", tell the critic to open the fixture and compare the test's
 data against it **field by field**. A test whose data merely *aggregates* to the
@@ -229,6 +242,20 @@ double or truncate in ways no unit test covers.
 Tell the critic explicitly where scratch files may go: **outside the repository.**
 It has a shell and no edit tool, and without a named location some critics reach
 for the repo.
+
+### The confirming critic
+
+When a `gauntlet` node comes back with zero open items, a second critic confirms
+it before the node is finished. Dispatch it with **the same prompt, unchanged**.
+
+Not a shorter one, not a "double-check this" one, and above all not one that
+mentions the first critic, its verdict or its probes. The moment a confirming
+critic knows a peer already closed the node, it starts looking for reasons to
+agree, and you have paid for a rubber stamp. Send it in blind, on a cheaper
+model, and let it do the same work from scratch.
+
+Everything the first critic produced stays with you. Union its items with the
+second's, and hand the union to the builder.
 
 ### One more thing worth saying out loud
 

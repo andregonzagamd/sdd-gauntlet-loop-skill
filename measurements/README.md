@@ -33,11 +33,16 @@ produced, warts included. The two known warts are the point:
 
 | Node | What is missing | Found by |
 |---|---|---|
-| `src/money.js` | no test for `centsToDisplay(NaN)` or `Infinity`, though `design.md:95` names both | a Haiku critic; missed by Sonnet |
-| `src/report.js` | no test for a zero category total, a negative month total, or `formatReport({months: [], grandTotalCents: N})` | a Sonnet critic; missed by Haiku |
+| `src/money.js` | no test for `centsToDisplay(NaN)` or `Infinity`, though `design.md:95` names both | Haiku/prompt magro ✓ · Sonnet/prompt longo ✗ · Sonnet/template completo ✓ |
+| `src/report.js` | no test for a zero category total, a negative month total, or `formatReport({months: [], grandTotalCents: N})` | Sonnet/prompt longo ✓ · Haiku/prompt magro ✗ · Sonnet/template completo ✗ |
 
 Those two gaps are the measuring instrument. A critic that finds them is working;
 one that closes the node as finished is not. Fixing them destroys the bench.
+
+Three runs in, **no single critic has found both**, and the one dispatched with the
+full `dispatch-prompts.md` template ran the `report.js` gap, saw correct behavior
+and closed the node on it. That is the evidence behind decision #11 (two critics on
+`PASS-FINISHED`) and behind the rule that a critic's own probe is not coverage.
 
 The spec that produced it is in `specs/archive/ledger-core/`, and `progress.md` is
 the full append-only log of the run — 21 events, including the one node that

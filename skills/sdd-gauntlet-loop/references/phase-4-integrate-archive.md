@@ -31,7 +31,9 @@ You may edit code to reconcile seams. You may not add features, and you may
 not weaken a test to make the suite green.
 ```
 
-Then send the entire change to one final clean-context `harsh-critic`, closing every rubric dimension against the whole contract rather than a single task. This is the verdict that matters, and the change is not done until every dimension comes back `CLEAR`.
+Then send the entire change to a final clean-context `harsh-critic`, closing every rubric dimension against the whole contract rather than a single task. This is the verdict that matters, and the change is not done until every dimension comes back `CLEAR`.
+
+**And it takes two of them.** This is the same rule as a `gauntlet` node's finish (see [`phase-3-graph-gauntlet.md`](phase-3-graph-gauntlet.md)), applied where it matters most: if the whole-change critic returns zero open items, dispatch a second one — fresh context, cheaper model, blind to the first — and take the union. Nothing looks at this change again after this verdict, which is exactly why one agent's word is not enough to end it.
 
 ## The archive step
 

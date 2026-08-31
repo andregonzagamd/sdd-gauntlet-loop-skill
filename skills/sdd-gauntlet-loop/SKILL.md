@@ -63,7 +63,7 @@ Read `AGENTS.md` first. Then produce, without touching a single implementation f
 - `specs/<change-id>/design.md` — architecture, data model, API contracts, libraries, trade-offs rejected
 - `specs/<change-id>/tasks.md` — ordered atomic tasks, each with the files it touches and its dependencies
 
-If the repo has an `openspec/` directory or the `openspec` CLI is available, drive this phase through it (`/opsx propose`, or `openspec propose <change-id>`) and treat its artifacts as the ones above. Otherwise generate them directly — the pipeline never depends on a specific tool being installed.
+If OpenSpec is present, drive this phase through it (`/opsx propose`) and treat its artifacts as the ones above. The pipeline never depends on a tool being installed.
 
 **Code lock:** writing implementation code during this phase is a failure. Stop and present the spec to the user for approval unless the invocation said to run unattended.
 
@@ -78,8 +78,6 @@ Translate `design.md` + `tasks.md` into `contract.md` at the repo root. It has f
 - **CRITIC RUBRIC** — the dimensions a critic must close, the reference standard they are held against, and each node's tier: `gauntlet` or `review`. There is no score; each dimension ends as `GAP`, `IMPROVEMENT`, or `CLEAR`.
 - **BOUNDARIES** — max iterations per node (default 5), max total waves, forbidden actions, and what forces escalation to the human.
 
-A contract with a verifier nobody can run is not a contract. If you cannot name the command, say so and ask.
-
 Details: `references/phase-2-contract.md`.
 
 ## Phase 3 — Fan-out and gauntlet (the diamond)
@@ -90,7 +88,8 @@ Read `AGENTS.md`, `contract.md`, `progress.md` before every wave — state comes
 2. **Fan out.** Dispatch one `builder` subagent per node, in parallel across the wave. Each gets: the constitution, the contract, its task, and the files it may touch — nothing else. If two nodes must touch the same file, run them in isolated worktrees or serialize them.
 3. **Run the gauntlet.** For each finished node, dispatch a `harsh-critic` subagent with a clean context. It receives `contract.md` and the diff, never the builder's narrative. It runs the verifiers and closes every rubric dimension, each with `file:line` or the evidence behind it.
 4. **Loop, bounded.** Any `GAP` returns to the builder verbatim, re-critiqued by a *fresh* critic. `IMPROVEMENT` buys another round on a `gauntlet` node; on a `review` node it goes to the polish queue and the node is done. Escalate at the iteration cap, or when two rounds leave the same items open.
-5. **Persist.** After every critic verdict, append to `progress.md`: wave, node, iteration, verdict, open count, items, files changed. One line per event, newest last.
+5. **Confirm the finish.** `PASS-FINISHED` is the verdict whose error is silent, so a `gauntlet` node needs **two** clean-context critics, the second blind to the first. It finishes only if both return zero open items; otherwise their items union.
+6. **Persist.** After every critic verdict, append to `progress.md`: wave, node, iteration, verdict, open count, items, files changed. One line per event, newest last.
 
 Waves and the stall protocol: `references/phase-3-graph-gauntlet.md`. **Prompts and probes: `references/dispatch-prompts.md` — read before dispatching.**
 
@@ -100,7 +99,7 @@ Dispatch the `integrator` subagent once all waves pass individually. It resolves
 
 ## Phase 5 — Archive
 
-When every contract box is checked: move `specs/<change-id>/` to `specs/archive/<change-id>/` (or run `/opsx archive`), leaving the specification as the project's living documentation. Append the closing entry to `progress.md`. Then report to the user: what was built, every verifier's result, how the final critic closed each dimension, and anything the contract deliberately left out.
+When every contract box is checked: move `specs/<change-id>/` to `specs/archive/<change-id>/` (or run `/opsx archive`), leaving the specification as the project's living documentation. Append the closing entry to `progress.md`, with the commit it describes. Then report to the user.
 
 Details: `references/phase-4-integrate-archive.md`.
 
@@ -112,7 +111,7 @@ Defect-free is not finished — it means no `GAP`, with every `IMPROVEMENT` stil
 
 Stop and hand back to the human when any of these is true:
 
-- All verifiers exit 0, every task in `tasks.md` is checked, and the final critic closed **every** dimension `CLEAR`. **(success)**
+- All verifiers exit 0, every task in `tasks.md` is checked, and two independent critics closed **every** dimension `CLEAR`. **(success)**
 - A node hits its iteration cap, or two consecutive rounds leave the same items open. **(stall — a safety valve, not a finish)**
 - The work would require an action listed as forbidden in `BOUNDARIES` — schema drops, deploys, deleting data, rewriting history, touching credentials. **(boundary)**
 - The spec turns out to be wrong. Do not patch around a bad spec: stop, say which assumption broke, and go back to Phase 1.
@@ -121,9 +120,8 @@ Stop and hand back to the human when any of these is true:
 
 - A builder marking its own work as passing.
 - A critic that edits code. Critics are read-only and stay that way.
-- A critic that sees the builder's justification before scoring.
 - Running a wave with nodes that write the same file.
 - Loop state kept in the conversation instead of `progress.md`.
-- "Almost passing" being treated as passing. The bar is the bar.
+- **A dimension closed on a probe the critic ran itself.** The probe dies with the context; the suite survives. An uncovered case that happens to work is the finding, not the evidence.
 - **Treating "no defects found" as "impressive".** They are different questions, and only the second one ends the loop.
 - Committing secrets, keys, or `.env` contents — never, under any framing.

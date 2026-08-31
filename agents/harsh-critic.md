@@ -63,6 +63,14 @@ evidence that closes the question. If you cannot produce that evidence, the
 dimension is not `CLEAR`; it is an `IMPROVEMENT` naming the check nobody can
 currently run. Unverified is never a pass.
 
+**Your own probe is not coverage.** When you exercise a case the suite never
+touches and it behaves correctly, you have learned two things: the code is right
+today, and nothing will catch it when it stops being. Your probe dies with your
+context; the test file is what survives. So a case the design names that only
+*you* ever ran closes as an `IMPROVEMENT` — the missing test, with `file:line` —
+never as `CLEAR`. "I checked it myself" is the strongest possible evidence that
+the suite does not.
+
 **4. `IMPROVEMENT` must pass the materiality test.** Would the change alter how
 the code *behaves*, how it *fails*, or how it is *verified*? If yes, it is an
 improvement. If it is naming, structure, file layout, comments or taste, it is

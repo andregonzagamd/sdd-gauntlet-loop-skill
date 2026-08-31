@@ -41,6 +41,11 @@ passed — do not rebuild them.
    - **review-tier** node: it is done. Append the items to the polish queue in
      `progress.md` for the integrator, and move on.
 
+   On a gauntlet-tier PASS with **zero** open items, you have a candidate finish,
+   not a finish: confirm it with a second `harsh-critic`, fresh context, cheaper
+   model, blind to the first — same prompt, no mention that a peer already ran.
+   Both at zero or the node keeps going, on the union of their items.
+
    The iteration cap and the stall rule are safety valves for when every
    dimension never comes back `CLEAR`; hitting one is an escalation, not a finish.
    A node stalls when two consecutive rounds leave the open count unchanged, or
