@@ -8,8 +8,13 @@ disable-model-invocation: true
 Run **Phase 3** of the SDD + Gauntlet Loop for change id `$ARGUMENTS`, and stop
 before Phase 4.
 
-Read `skills/sdd-gauntlet-loop/references/phase-3-graph-gauntlet.md` — it has the
-wave planning rules, the dispatch prompts, and the stall protocol. Follow it.
+Read `skills/sdd-gauntlet-loop/references/phase-3-graph-gauntlet.md` for the wave
+planning rules and the stall protocol, and
+`skills/sdd-gauntlet-loop/references/dispatch-prompts.md` for the prompts
+themselves. Read the second one **before dispatching anything** — the agent
+definitions carry the format, but the prompt is what carries the rigor, and a
+dispatch with unfilled `<probes>` is a critic that will miss what it was sent to
+find.
 
 ## Before every wave
 

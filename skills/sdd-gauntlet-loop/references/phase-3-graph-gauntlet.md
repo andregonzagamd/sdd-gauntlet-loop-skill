@@ -25,100 +25,18 @@ If two independent nodes must touch the same file, choose one:
 
 Write the wave plan into `progress.md` before dispatching anything. If the loop is interrupted, this is what lets a fresh session resume without redoing work.
 
-## Dispatching a builder
+## Dispatching builders and critics
 
-One subagent per node, dispatched in parallel across the wave. Give it exactly this and nothing more:
+One builder subagent per node, dispatched in parallel across the wave. A **fresh** critic per verdict, including every re-check — reusing a critic that saw an earlier attempt destroys the clean context that makes it useful.
 
-```
-You are building one node of a larger change. Stay inside it.
+**The full working prompts live in [`dispatch-prompts.md`](dispatch-prompts.md)**, together with the generators for the node-specific probes. Read it before dispatching anything: measured on real runs, that is where most of this phase's quality actually comes from.
 
-CONSTITUTION: <contents of AGENTS.md>
-CONTRACT:     <contents of contract.md>
-YOUR TASK:    <the single task from tasks.md, verbatim>
-FILES YOU MAY TOUCH: <the task's declared files>
+Four rules from that file are load-bearing enough to repeat here:
 
-Rules:
-- Read every file before editing it.
-- Write the smallest change that satisfies the task. No extra abstraction,
-  no unrequested features, no files nobody asked for.
-- Write or update the tests that prove your "done when" clause.
-- Do not touch files outside your list. If you believe you must, stop and
-  report why instead of doing it.
-- Do not judge your own work. Report what you changed and what you did not.
-
-Return: the files changed, and the "done when" check with its actual result.
-```
-
-The builder does **not** get: the other nodes' work, the critic rubric's scoring weights, or permission to declare success.
-
-## Dispatching a critic
-
-A fresh `harsh-critic` subagent per verdict — including every re-check. Reusing a critic that already saw an earlier attempt destroys the clean context that makes it useful.
-
-```
-You are reviewing a change you did not write. You have no stake in it passing.
-
-CONTRACT: <contents of contract.md>
-DIFF:     <the node's diff>
-VERIFIERS: <the commands from the contract>
-
-Do this in order:
-1. Run every verifier. Record the exact exit code and output.
-2. Probe the implementation beyond its own tests. <specific probes>
-3. Read the diff for what the verifiers cannot catch: stubs, TODOs,
-   hardcoded values, swallowed errors, dead paths, tests that assert
-   nothing, mocks that mock away the thing under test.
-4. Close every rubric dimension as GAP, IMPROVEMENT, or CLEAR.
-5. Verdict — computed, not judged.
-
-You are not here to be encouraging. A change that "mostly works" fails.
-If you cannot verify a claim, it is unverified, which is not a pass.
-
-Return exactly:
-VERDICT: FAIL | PASS-UNFINISHED | PASS-FINISHED
-OPEN:    <count of GAP + IMPROVEMENT>
-VERIFIERS:  <command> -> exit <n> <result>
-DIMENSIONS:
-  <dimension>: GAP — <what is wrong> (<file:line>) — <what would fix it>
-  <dimension>: IMPROVEMENT — <material change missing> (<file:line>)
-  <dimension>: CLEAR — <the command, probe or comparison that closes it>
-NOTES:   <true, not a defect; omit the heading when there are none>
-```
-
-### Step 2 is the one that earns the loop
-
-**The tests were written by the same agent that wrote the code, so they are
-evidence of intent, not of correctness.** A verifier only proves the code agrees
-with the test; it never proves the test asserts the right thing. A green suite is
-where a bad node hides.
-
-So `<specific probes>` is not boilerplate — write it fresh for each node, naming
-inputs the node's own tests do not cover, drawn from the design:
-
-- the values the design says must be **rejected** that the task's `done when`
-  list happens not to enumerate
-- boundary values where a naive implementation silently loses a sign, a leading
-  zero, or precision
-- a round-trip, where the node has two functions that should invert each other
-- **the source of truth for the test's own data.** If the task says "the rows
-  from `fixtures/x.csv`", tell the critic to open the fixture and compare the
-  test's data against it field by field. A test whose data merely *aggregates* to
-  the right answer while its individual values are invented is the single
-  highest-value catch in this whole phase, and no exit code will ever find it.
-
-Tell the critic explicitly where it may write scratch files — **outside the
-repository**. It has a shell and no edit tool; without a named scratch location
-some critics will reach for the repo.
-
-### Tell the critic what it must not re-review
-
-In wave 2 and later, name the nodes that already passed and say plainly: read
-them to understand what this node calls, do not re-score them. Otherwise a
-critic re-litigates a closed node, and a node can be failed twice for the same
-thing by two different critics.
-
-Say the same about work in flight: if another node is being built in parallel,
-its files may be absent or half-written, and that is not this node's gap.
+- **The builder does not get** the other nodes' work, the critic's rubric, or permission to declare success.
+- **The critic does not get** the builder's narrative, self-assessment, or account of how hard the problem was. It gets the contract and the diff.
+- **Name the probes for every node.** Agent definitions carry the *format* — a critic dispatched with three lines still returns every dimension in a state with `file:line`. They do not carry the *rigor*. The measured difference between a critic that catches a fabricated test fixture and one that shrugs is whether the prompt told it what to probe.
+- **Say what must not be re-reviewed.** Name the nodes that already passed (read them to understand what this node calls; do not re-score them) and the nodes in flight (their files may be absent or half-written, and that is not this node's gap). Without this a critic re-litigates a closed node, and the same work gets failed twice for the same thing.
 
 Critics are **read-only**. A critic that fixes what it found has stopped being an independent check and has started grading its own work.
 

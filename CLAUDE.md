@@ -33,7 +33,8 @@ skills/sdd-gauntlet-loop/
 ├── references/                       # lidos SÓ quando a fase começa (progressive disclosure)
 │   ├── phase-1-spec.md
 │   ├── phase-2-contract.md
-│   ├── phase-3-graph-gauntlet.md     # ondas, prompts de dispatch, protocolo de estagnação
+│   ├── phase-3-graph-gauntlet.md     # ondas, loop, protocolo de estagnação
+│   ├── dispatch-prompts.md           # os prompts completos + como nomear as sondas de cada nó
 │   └── phase-4-integrate-archive.md
 └── assets/                           # templates copiados pro projeto alvo pelo install.sh
     ├── AGENTS.md  contract.md  progress.md
@@ -328,6 +329,43 @@ volume. Haiku foi mais lento (190s contra 73s no `money.js`).
 errar ali é silencioso — usar **dois críticos baratos em vez de um caro**, unindo os itens
 abertos dos dois. Nesta amostra isso acharia 2 itens reais em vez de 1, pelo mesmo volume de
 tokens e preço menor. Evidência: n=2, um nó cada. Suficiente pra propor, não pra fechar.
+
+**O experimento que decide isso (passo 2, não rodado):** agora que `dispatch-prompts.md` existe,
+rode **um** crítico usando o template completo, com as sondas nomeadas, nos mesmos dois nós.
+
+- Se ele achar **os dois** itens (`NaN` no `money.js` e os três casos no `report.js`), a cegueira
+  era falta de sonda nomeada e não falta de segunda opinião. A proposta dos dois críticos morre,
+  e você economiza uma chamada por nó pra sempre.
+- Se ainda perder um, a cegueira é do modelo, e aí dois críticos baratos é a resposta certa.
+
+Custo: 2 chamadas. Qualquer um dos dois resultados fecha uma decisão de design em aberto — é o
+melhor retorno por token que sobrou no projeto.
+
+### `dispatch-prompts.md` — a referência que a medição pediu
+
+Criada em 31/08/2026, extraída dos prompts que realmente rodaram nesta pipeline, não inventada.
+
+A segunda medição diagnosticou com precisão: **a skill carrega a forma, o prompt de dispatch
+carrega o rigor.** Um crítico despachado com três linhas ainda devolve toda dimensão em estado
+com `file:line` — isso é o `harsh-critic.md` funcionando. O que ele não faz sozinho é sondar
+fundo, e foi por isso que dois críticos competentes perderam, cada um, um item real.
+
+Antes, a `phase-3` entregava um esqueleto de 15 linhas com `<specific probes>` em branco mais
+prosa dizendo que aquilo importava. Quem clonasse o repo recebia a forma e escrevia o rigor
+sozinho — ou não escrevia, que era o caso provável.
+
+Agora `references/dispatch-prompts.md` traz os três prompts completos (builder, crítico,
+integrador) e, mais importante, **oito geradores de sonda** derivados do que de fato pegou
+defeito. O primeiro é o de maior rendimento e é mecânico:
+
+> **Cruze o design contra a lista `done when`.** Todo caso que o design nomeia e que os
+> critérios de aceite não enumeram é uma sonda.
+
+Os dois itens que os críticos perderam na segunda medição tinham exatamente essa forma — um
+ramo `NaN` e um de estado vazio, ambos nomeados no design, nenhum listado no `done when`,
+nenhum testado. Esse gerador sozinho teria pego os dois.
+
+`phase-3` caiu de 194 pra 112 linhas: conteúdo movido, não duplicado (decisão #4).
 
 ### Atrito conhecido, ainda não resolvido
 

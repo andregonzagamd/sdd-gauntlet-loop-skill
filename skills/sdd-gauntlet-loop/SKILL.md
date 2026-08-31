@@ -89,10 +89,10 @@ Read `AGENTS.md`, `contract.md`, `progress.md` before every wave — state comes
 1. **Build the graph.** Group `tasks.md` into waves. Two tasks belong in the same wave only if they are independent *and* touch disjoint files. Write the wave plan into `progress.md` before dispatching.
 2. **Fan out.** Dispatch one `builder` subagent per node, in parallel across the wave. Each gets: the constitution, the contract, its task, and the files it may touch — nothing else. If two nodes must touch the same file, run them in isolated worktrees or serialize them.
 3. **Run the gauntlet.** For each finished node, dispatch a `harsh-critic` subagent with a clean context. It receives `contract.md` and the diff, never the builder's narrative. It runs the verifiers and closes every rubric dimension, each with `file:line` or the evidence behind it.
-4. **Loop, bounded.** Any `GAP` sends the node back to its builder with the items verbatim, re-critiqued by a *fresh* critic. `IMPROVEMENT` on a `gauntlet` node buys another round; on a `review` node it goes to the polish queue and the node is done. Escalate when the iteration cap is hit, or when two consecutive rounds leave the same items open.
+4. **Loop, bounded.** Any `GAP` returns to the builder verbatim, re-critiqued by a *fresh* critic. `IMPROVEMENT` buys another round on a `gauntlet` node; on a `review` node it goes to the polish queue and the node is done. Escalate at the iteration cap, or when two rounds leave the same items open.
 5. **Persist.** After every critic verdict, append to `progress.md`: wave, node, iteration, verdict, open count, items, files changed. One line per event, newest last.
 
-Details, dispatch prompts and the stall protocol: `references/phase-3-graph-gauntlet.md`.
+Waves and the stall protocol: `references/phase-3-graph-gauntlet.md`. **Prompts and probes: `references/dispatch-prompts.md` — read before dispatching.**
 
 ## Phase 4 — Integrate
 
