@@ -34,7 +34,7 @@ produced, warts included. The two known warts are the point:
 | Node | What is missing | Found by |
 |---|---|---|
 | `src/money.js` | no test for `centsToDisplay(NaN)` or `Infinity`, though `design.md:95` names both | Haiku/magro ✓ · Sonnet/longo ✗ · Sonnet/template ✓ · Haiku/template ✓ |
-| `src/report.js` | no test for a zero category total, a negative month total, or `formatReport({months: [], grandTotalCents: N})` | Sonnet/longo ✓ · Haiku/magro ✗ · Sonnet/template ✗ · Haiku/template ✗ · **Sonnet/1b ✓✓✗** · **Gemini 3.1 Pro/1b refinado ✓✓✗** |
+| `src/report.js` | no test for a zero category total, a negative month total, or `formatReport({months: [], grandTotalCents: N})` | Sonnet/longo ✓ · Haiku/magro ✗ · Sonnet/template ✗ · Haiku/template ✗ · Sonnet/1b ✓✓✗ · Gemini/1b refinado ✓✓✗ · **Gemini/produto completo ✓✓✓** |
 
 Those two gaps are the measuring instrument. A critic that finds them is working;
 one that closes the node as finished is not. Fixing them destroys the bench.
@@ -62,19 +62,22 @@ It also found two states nobody had listed (a negative grand total; categories
 differing only in case, which `design.md:57` leaves unqualified under "string
 sort"), and still missed the third bench item.
 
-**That third item has now survived six critics, and the last two miss it in a way
-worth knowing.** It is one corner of the `months` × `grandTotalCents` product:
-`done when` covers `(empty, zero)`, the fixture covers `(non-empty, non-zero)`,
-and *two* corners are left. The refined generator, run on Gemini 3.1 Pro in a
-fresh agent with no part of this skill installed, crossed exactly that pair of
-fields — and stopped at the other leftover corner, `(non-empty, zero)`. Right
-question, half an answer. It also surfaced a state nobody had listed at all:
-`months[].categories === []`, which `buildReport` cannot emit and the exported
-`formatReport` accepts.
+**That third item survived six critics, and the seventh closed it.** It is one
+corner of the `months` × `grandTotalCents` product: `done when` covers
+`(empty, zero)`, the fixture covers `(non-empty, non-zero)`, and *two* corners are
+left. The generator's refined form crossed the right pair of fields and stopped at
+the other leftover corner. Its final form — write every corner of every shape and
+mark it covered / impossible / uncovered **before** probing any, with a
+combination no producer emits still counted as reachable through any **exported**
+function that accepts the shape — reached it on the first pass, on Gemini 3.1 Pro,
+in a fresh agent with no part of this skill installed.
 
-So this item is still the bench's sharpest edge. Anything that closes it has to
-enumerate a whole product and probe every uncovered corner, not the first one
-it notices.
+**What it cost is now part of what this bench measures.** That exhaustive pass
+returned **19 open items on a 47-line module** — the three real ones, a few more
+worth having, and a long tail of corners that take the same branches with
+different numbers. Enumerating exhaustively is what finds the item; reporting
+exhaustively is what stops a node from ever finishing. If you run a critic here,
+that trade-off is the thing to watch.
 
 The spec that produced it is in `specs/archive/ledger-core/`, and `progress.md` is
 the full append-only log of the run — 21 events, including the one node that

@@ -250,7 +250,23 @@ criteria typically cover one while the fixture covers another — leaving *two*,
 not one. So write all the corners down first, strike the ones a test already
 reaches, and probe **everything that remains**. Stopping at the first hit is how
 a generator that reached the right question still returns the wrong half of the
-answer.
+answer. Measured: the exhaustive version found, in one pass, the item that had
+survived six critics.
+
+**Then collapse before you report.** The enumeration is exhaustive on purpose; the
+report must not be. After probing every uncovered corner, merge the ones that take
+the same branches and produce the same shape of output — a corner that differs
+from a covered one only in the magnitude of a number is the same test twice. What
+earns its own open item is a corner that reaches a branch nothing else reaches, or
+produces an output shape nothing else produces.
+
+Skip this step and the generator turns on you: run exhaustively without collapsing
+and it returned **nineteen** open items on a 47-line module, a handful of them
+behaviorally distinct and the rest the same path with different numbers. A builder
+handed nineteen writes nineteen tests, the node never finishes, and the iteration
+cap becomes the real brake — the exact failure the materiality test exists to
+prevent. Enumerate like a machine; report like someone who has to pay for each
+line.
 
 **2. The source of truth for the test's own data.** If the task says "the rows
 from `fixtures/x.csv`", tell the critic to open the fixture and compare the test's

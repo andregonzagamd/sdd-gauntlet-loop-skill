@@ -526,6 +526,39 @@ sozinho.
 Detalhe menor, registrado porque enganou: os sete itens vieram com `test/report.test.js:64`, e o
 arquivo tem 63 linhas. Não é coordenada de defeito, é "acrescente aqui".
 
+### Sétima medição — o produto completo fecha o terceiro item, e cobra caro. 31/08/2026
+
+Mesmo modelo da sexta (Gemini 3.1 Pro), mesmo alvo, só o prompt mudou: o passo 2 virou **tabela
+de produto obrigatória** — todos os cantos de cada forma escritos e marcados
+`COVERED-CRITERIA` / `COVERED-FIXTURE` / `IMPOSSIBLE` / `UNCOVERED` **antes** de sondar qualquer
+um, com ônus de prova no `IMPOSSIBLE` e a regra de que combinação que a função produtora não emite
+não é impossível se alguma função **exportada** a aceita como parâmetro.
+
+**Os três itens do `report.js`, num prompt só, pela primeira vez em sete críticos.** O terceiro —
+`formatReport({months: [], grandTotalCents: N})` — apareceu como linha `#6` do produto, marcada
+`UNCOVERED (formatReport can receive it)`, sondada, sem teste. O gerador 1b está completo.
+
+**E o preço apareceu junto: 19 itens abertos num módulo de 47 linhas.** A enumeração exaustiva não
+tem filtro de materialidade — todo canto descoberto virou item, incluindo vários que percorrem
+exatamente as mesmas ramificações com números diferentes ("months: 1 element, grandTotalCents:
+> 0" é o caminho feliz com um mês). Um builder que recebe 19 escreve 19 testes, o nó não termina,
+e o teto de iterações volta a ser o freio real — a falha que a decisão #10 existe pra evitar.
+
+Correção no gerador: **enumere como máquina, reporte como quem paga por linha.** Depois de sondar,
+funda os cantos que tomam as mesmas ramificações e produzem a mesma forma de saída; ganha item
+próprio o canto que alcança um ramo que nenhum outro alcança. A exaustividade é da enumeração, não
+do relatório.
+
+**A correção de `CLEAR` da sexta medição não pegou.** Eu tinha escrito no `harsh-critic.md` e no
+prompt que *"checked manually é a mesma sensação com um verbo na frente"*. O crítico leu isso e
+escreveu `Correctness: CLEAR — tested manually with node -e` e mais três iguais. Prosa não segura
+esse comportamento fora da família Claude. Virou **restrição de formato**: uma linha `CLEAR` tem
+que conter literalmente um comando com exit code, um trecho citado do que a sonda devolveu, ou
+dois `file:line` comparados. Frase com verbo e sem artefato não é nenhum dos três.
+
+O roteamento, esse sim, pegou: os 19 foram todos pra `Test honesty`, e `Correctness` fechou —
+que é exatamente o que a correção da sexta medição mandava.
+
 ### O teste de retomada — `progress.md` lido por contexto limpo. 31/08/2026
 
 A afirmação sob teste é a decisão #7: *"`progress.md` é append-only — é o que permite uma sessão

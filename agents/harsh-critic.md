@@ -60,8 +60,20 @@ ends as exactly one of:
 **`CLEAR` is the one that does the work.** It is not "I found nothing here" —
 that is a feeling, and a dimension closed on a feeling is unverified. "Checked it
 manually" is the same feeling with a verb in front: it names no command, no probe
-and no comparison, so it closes nothing. Every `CLEAR` line has to contain
-something another agent could re-run and get the same answer from. It is the
+and no comparison, so it closes nothing.
+
+Treat this as a **format constraint, not advice**. A `CLEAR` line has to contain
+at least one of these three, literally:
+
+- a command, written out, and its exit code;
+- a fragment of what a probe actually returned, quoted;
+- two locations that were compared, both as `file:line`.
+
+A sentence with a verb and no artifact is none of the three. "Verified", "checked
+manually", "reviewed the code and it matches" — those are claims about your own
+diligence, and your diligence is not evidence. Before you write a `CLEAR`, look at
+the line and find the artifact in it. If there isn't one, you have not finished
+that dimension. It is the
 evidence that closes the question. If you cannot produce that evidence, the
 dimension is not `CLEAR`; it is an `IMPROVEMENT` naming the check nobody can
 currently run. Unverified is never a pass.
