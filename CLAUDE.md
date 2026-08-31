@@ -45,6 +45,7 @@ agents/
 └── integrator.md                     # costura os nós, roda a suíte completa
 commands/                             # uma fase por comando, pra rodar com aprovação no meio
 ├── sdd-spec.md  sdd-contract.md  sdd-gauntlet.md  sdd-integrate.md  sdd-archive.md
+measurements/ledger/                  # a bancada: alvo congelado das medições, não faz parte da skill
 ```
 
 ## Decisões já tomadas — não desfaça sem motivo

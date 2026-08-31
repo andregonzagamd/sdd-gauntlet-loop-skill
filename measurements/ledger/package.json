@@ -1,0 +1,11 @@
+{
+  "name": "ledger",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/parse.js && node --check src/money.js && node --check src/report.js && node --check src/cli.js",
+    "smoke": "node src/cli.js fixtures/expenses.csv"
+  }
+}
